@@ -1,0 +1,4 @@
+interface:
+  display_name: "Jogo 3D de Suspense em Rust"
+  short_description: "Arena 3D, Blender e áudio de suspense reproduzíveis"
+  default_prompt: "Use $build-rust-suspense-game para continuar a arena 3D com Rust, Blender e áudio de suspense."
