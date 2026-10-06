@@ -1,0 +1,7 @@
+file,source,status,rights
+rain.wav,tools/generate_audio.py,synthetic-placeholder,original-project
+shot.wav,tools/generate_audio.py,synthetic-placeholder,original-project
+step.wav,tools/generate_audio.py,synthetic-placeholder,original-project
+cue.wav,tools/generate_audio.py,synthetic-placeholder,original-project
+explosion.wav,tools/generate_audio.py,synthetic-placeholder,original-project
+pulse.wav,tools/generate_audio.py,synthetic-placeholder,original-project
