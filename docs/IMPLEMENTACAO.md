@@ -2,59 +2,67 @@
 
 ## Decisões aceitas
 
-Usuário: Douglas Taquary. Solicitação: criar pequena arena 3D de fantasia sombria com Rust + Blender, arma detalhada, um inimigo, iluminação atmosférica e som de chuva, tiros e explosões realistas. Produzir suspense durante a exploração e continuidade reproduzível no GitHub.
-Plataforma inicial assumida: desktop, ainda sem equipamento-alvo confirmado. iOS é etapa futura.
-Referência: https://x.com/dimillian/status/2107161600335507611
-Texto fornecido: port de Dark Veil para iOS e toque alterou cerca de 200 linhas de uma base Rust existente. Não interpretar como criação do jogo inteiro em 200 linhas. Motor do original não confirmado.
+Usuário: Douglas Taquary. Solicitação: arena 3D de fantasia sombria com Rust + Blender, arma detalhada, inimigos realistas no estilo low poly das referências, iluminação atmosférica e som imersivo de chuva, tiros, passos e criaturas.
+Plataforma inicial: desktop. iOS é etapa futura.
+Referência: https://x.com/dimillian/status/2107161600335507611 e vídeos de "Dark Veil — The Blackwood" (ondas 1–5, chuva forte, braseiros, esqueletos, escopeta dupla) fornecidos pelo usuário.
+2026-10-08: o usuário trocou zumbis por esqueletos e outros mortos-vivos da imagem de elenco; os personagens são originais no mesmo estilo, mais voltados ao realismo (pedido posterior), sem copiar os ativos de referência.
 
 ## Referências visuais
 
-As capturas não acompanham o repositório público. Os caminhos abaixo descrevem os arquivos do pacote original, disponíveis separadamente ao proprietário. Solicitar esse pacote antes de uma comparação visual.
-
-`references/reference-rain.jpeg`: chuva forte, arena escura, luz de fogo, arma na parte inferior, inimigos emergindo da atmosfera.
-`references/reference-arena.jpeg`: geometria angular, floresta, portal em ruínas, pedras no chão, arma dupla com metal e detalhes dourados.
-Usar essas imagens como direção de composição. Não reproduzir a identidade, interface ou ativos do jogo original.
+As capturas não acompanham o repositório público (`.gitignore`). Cópias privadas: `docs/references/reference-scene.jpeg` (arena com portal, braseiros, cristais, HUD) e `docs/references/reference-enemies.jpeg` (elenco low poly de esqueletos, cavaleiro, ghoul, caveira com chifres).
+Usar como direção de composição; não reproduzir identidade, interface ou ativos do jogo original.
 
 ## Mapa do código
 
-`src/main.rs`:
-- `setup`: arena, câmera, arma, inimigo, chuva, iluminação, sons e HUD.
-- `controls`: teclado, mouse, captura, reinício e silêncio.
-- `combat`: perseguição, dano por aproximação, disparo por raio simplificado e sons de ameaça.
-- `atmosphere`: chuva, oscilação de luzes, recuo visual e flash.
-- `update_hud`: vida e resultado.
-- `play`: efeitos descartáveis com opção espacial.
-`tools/generate_audio.py`: sintetizar WAV de teste com sementes fixas.
-`tools/build_blender_assets.py`: construir e exportar exemplos; conferir orientação, escala e material dentro do jogo.
+- `src/main.rs`: `App`, plugins, `Game` (vida, armadura, onda, fase `Intro/Countdown/Fighting/Victory/Defeat`, abates, mudo), `Game::damage` (armadura absorve 60% até acabar), `Gfx` (chaves `BH_GFX`), entrada global (P, M, Enter/R) e evento `Restart`.
+- `src/world.rs`: arena (chão de lama com relevo e cores de vértice, poças, portal, muro em anel com brechas, árvores, lápides, forca, pedras, cristais), `Obstacles` (colisão circular + raio da arena), braseiros (luz que oscila, chamas aditivas, brasas), chuva que acompanha o jogador, tempestade (relâmpago duplo + trovão atrasado), partículas (`spawn_burst`: osso, lama, terra, faísca, alma) e reforço de emissivo dos GLB.
+- `src/player.rs`: câmera HDR com bloom, tonemapping e neblina; movimento com aceleração, balanço de cabeça, passos; escopeta (`Gun`: 2 cartuchos, 9 chumbos em cone de 0,065 rad, queda de dano após 6 m, recarga 1,55 s, recarga automática); viewmodel com recuo, balanço e mergulho de recarga; clarão do cano; evento `EnemyHit`.
+- `src/enemy.rs`: `Kind` e atributos, carregamento das cenas e grafos de animação (`AnimationGraph::from_clips` com clipes 0–4), ligação do `AnimationPlayer` por observer `SceneInstanceReady`, ondas (`wave_roster`), pontos de surgimento (portão, chão, caveira no alto), IA (`Rising → Chase → Attack/Hit → Dead`), separação entre inimigos, golpe no meio do ataque, dano recebido (cabeça ×1,8, armadura de placas, atordoamento por limiar), sons por corpo, drop de cristal, afundar e remover cadáver.
+- `src/audio.rs`: `Sfx` (todos os WAV), `play_2d`, `play_at`, `play_on` (som filho do inimigo), loops de ambiente e diretor de tensão.
+- `src/hud.rs`: barras de vida/armadura, cartuchos, onda/restantes, tempo/abates, mira com marcador de acerto, faixas de fase, vinheta de dano e de vida baixa.
+- `src/bench.rs`: `--bench [s] --shot caminho` para validação automática.
+- `examples/gpu_probe.rs`: cena mínima para checar se a GPU compila os shaders do Bevy.
+- `tools/build_blender_assets.py`: kit de cenário, arma e elenco (ver abaixo).
+- `tools/generate_audio.py`: síntese de todos os WAV.
+
+## Elenco
+
+| Arquivo | Papel no jogo | Vida | Velocidade | Dano |
+|---|---|---|---|---|
+| `skeleton` | base, clava com cravos | 60 | 1,7 | 10 |
+| `skeleton_reaper` | rápido, ziguezague | 45 | 2,7 | 8 |
+| `skeleton_knight` | placas, recebe 70% do dano | 150 | 1,35 | 18 |
+| `skeleton_warlord` | chefe da onda 5, escala 1,3 | 460 | 1,55 | 28 |
+| `ghoul` | carne seca, avanço irregular | 95 | 2,1 | 14 |
+| `skull_horned` | flutua, investe; malha estática | 55 | 3,0 | 12 |
+
+Ondas: 1) 5 esqueletos; 2) 4 esqueletos + 3 ceifadores; 3) 3 esqueletos + 2 ceifadores + 3 ghouls + 1 caveira; 4) 3 ceifadores + 2 cavaleiros + 2 ghouls + 2 caveiras; 5) 3 esqueletos + 2 cavaleiros + 2 caveiras + senhor da guerra. Máximo de 8 vivos ao mesmo tempo; entre ondas, 6 s de respiro e +25 de armadura.
 
 ## Arte e exportação
 
-Manter uma unidade igual a um metro. Blender usa Z para cima; glTF/Bevy usam Y. Aplicar escala no Blender; verificar frente da arma na importação. Separar arte editável `.blend` e ativo de runtime `.glb`.
-Exportar materiais PBR com cor, metallic, roughness, normal e AO quando suportados. Materiais procedurais complexos precisam ser convertidos/bakeados em mapas compatíveis. Não assumir fidelidade idêntica entre render Blender e runtime.
-Criar metal gasto com bordas iluminadas, madeira escura, pedra úmida e variação de rugosidade. Próximo incremento: arma com silhueta reconhecível, alças, gatilho, boca de cano realmente aberta e texturas originais. Inimigo precisa rig e animações de idle, andar, ataque, impacto e morte.
+Uma unidade = um metro. Blender Z para cima → glTF/Bevy Y para cima. Personagens olham para −Y no Blender (+Z no glTF); a arma aponta para +Y no Blender (−Z, frente da câmera).
+Personagens: armadura de 15 ossos (`RIG`), skinning rígido (cada peça 100% num osso), cores de vértice com variação por face, oclusão ambiente assada por raio e sujeira junto ao chão; animações como trilhas NLA a 24 fps exportadas em ordem alfabética.
+O Blender 2.91 não exporta intensidade de emissão; `world::boost_emissive` multiplica por 14 os emissivos ≤ 1 vindos dos GLB.
 
 ## Suspense sonoro
 
-Objetivo: alternar antecipação, ameaça, ação e alívio; tornar o jogo envolvente. Não prometer que o jogador ficará "viciado".
-1. Camada base: chuva contínua sem emenda, exterior versus abrigo.
-2. Pistas: passos do inimigo em posição real; pequenos ruídos próximos com intervalos variados e reproduzíveis.
-3. Aproximação: aumentar presença de passos e detalhes, sem aumentar volume geral sem controle.
-4. Confronto: preservar inteligibilidade do disparo, impacto, recarga e dano.
-5. Alívio: reduzir tensão após a vitória; evitar suspense máximo constante.
+1. Base: chuva estéreo contínua, vento que recua quando a tensão sobe, fogo espacial em cada braseiro, trovões espaçados com relâmpago.
+2. Pistas: passos secos de osso (mais graves no cavaleiro/chefe), passos pesados do ghoul, chocalhar de ossos ao surgir, gemidos com variante distante pré-filtrada além de 11 m.
+3. Aproximação: drone sobe de volume e afinação conforme o inimigo mais próximo; batimento entra com vida abaixo de 40.
+4. Confronto: escopeta com 4 variações e cauda, estilhaço de osso, faíscas em armadura, desmoronamento na morte.
+5. Alívio: stinger de fim de onda e contagem antes da próxima.
 
-Nesta base, existe chuva constante, passo do jogador e cue espacial no inimigo; o diretor de áudio completo ainda é backlog. Sons síntéticos representam eventos, não o realismo final.
-Separar ambiente, efeitos, pistas e UI em buses quando o backend escolhido permitir. Planejar presets de fones/alto-falantes, controle de volume, alcance dinâmico reduzido e pausa. Áudio espacial básico não equivale a HRTF binaural.
-Não iniciar sons novos no modo silencioso. O toggle M pausa AudioSink e SpatialAudioSink em andamento; validar ambos no runtime.
-Registrar origem e licença de cada gravação em `docs/AUDIO_ASSETS.csv`. Obter chuva real com superfícies diferentes, três a cinco disparos por arma e camadas de explosão. Validar clipping, volume e repetição com fones.
+Atenuação: rodio usa inverso do quadrado; `SpatialScale` 0,22 deixa ~4 m em volume cheio. Mudo usa `mute()` dos sinks e novos sons nascem mudos.
+Registrar origem e licença de cada arquivo em `docs/AUDIO_ASSETS.csv`.
 
 ## Desempenho e limites
 
-Meta provisória: 60 FPS a 1280x720 no equipamento desktop escolhido; é objetivo, não resultado medido. Registrar CPU/GPU/RAM/SO, versão driver, FPS mediano, p95 de tempo de quadro, resolução e número de entidades. A chuva atual cria 350 entidades e precisa avaliação. Reduzir sombras, chuva e distância de visão em preset móvel. Não afirmar suporte iOS antes de compilar e testar em aparelho real com assinatura Apple.
+Meta: 60 FPS a 1280×720 no equipamento-alvo — ainda não medida (ver `docs/VALIDACAO.md`). Carga atual: ~900 gotas, ~110 brasas, até 8 inimigos esqueléticos (8,5k–10,9k triângulos cada, sem frustum culling por causa da animação de morte), 13 luzes pontuais (2 com sombra), luz direcional com 2 cascatas. `BH_GFX` permite reduzir sombras, neblina, HDR/bloom e MSAA.
 
 ## Marcos
 
-M0: compilação e execução validadas, Cargo.lock versionado.
-M1: arte da arma e arena revisada lado a lado com a referência.
-M2: áudio gravado, suspense com pistas reais e pausas; testes de acessibilidade.
-M3: inimigo animado, colisões e cobertura.
-M4: medição no aparelho-alvo e depois port para iOS/toque.
+- M0: compilação validada, Cargo.lock gerado — feito. Execução visual pendente (GPU incompatível na máquina de desenvolvimento).
+- M1: arte da arma, arena e elenco — feito no Blender; revisão dentro do jogo pendente.
+- M2: áudio completo e diretor de tensão — implementado; mixagem com fones pendente.
+- M3: inimigos animados, ondas, colisão simples — implementado; sessão jogada pendente.
+- M4: medição no aparelho-alvo, depois iOS/toque.

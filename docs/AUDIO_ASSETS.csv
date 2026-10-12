@@ -1,7 +1,60 @@
-file,source,status,rights
-rain.wav,tools/generate_audio.py,synthetic-placeholder,original-project
-shot.wav,tools/generate_audio.py,synthetic-placeholder,original-project
-step.wav,tools/generate_audio.py,synthetic-placeholder,original-project
-cue.wav,tools/generate_audio.py,synthetic-placeholder,original-project
-explosion.wav,tools/generate_audio.py,synthetic-placeholder,original-project
-pulse.wav,tools/generate_audio.py,synthetic-placeholder,original-project
+file,source,status,rights,use
+bone_collapse_1.wav,tools/generate_audio.py,synthetic-procedural,original-project,esqueleto desmoronando
+bone_collapse_2.wav,tools/generate_audio.py,synthetic-procedural,original-project,esqueleto desmoronando
+bone_hit_1.wav,tools/generate_audio.py,synthetic-procedural,original-project,tiro estilhaçando osso
+bone_hit_2.wav,tools/generate_audio.py,synthetic-procedural,original-project,tiro estilhaçando osso
+bone_hit_3.wav,tools/generate_audio.py,synthetic-procedural,original-project,tiro estilhaçando osso
+bone_rattle_1.wav,tools/generate_audio.py,synthetic-procedural,original-project,ossos chocalhando ao levantar e ameaçar
+bone_rattle_2.wav,tools/generate_audio.py,synthetic-procedural,original-project,ossos chocalhando ao levantar e ameaçar
+bone_rattle_3.wav,tools/generate_audio.py,synthetic-procedural,original-project,ossos chocalhando ao levantar e ameaçar
+bone_step_1.wav,tools/generate_audio.py,synthetic-procedural,original-project,passo seco de esqueleto
+bone_step_2.wav,tools/generate_audio.py,synthetic-procedural,original-project,passo seco de esqueleto
+bone_step_3.wav,tools/generate_audio.py,synthetic-procedural,original-project,passo seco de esqueleto
+burst.wav,tools/generate_audio.py,synthetic-procedural,original-project,explosão da caveira
+drone_loop.wav,tools/generate_audio.py,synthetic-procedural,original-project,drone de tensão (loop)
+dry_fire.wav,tools/generate_audio.py,synthetic-procedural,original-project,gatilho sem cartucho
+fire_loop.wav,tools/generate_audio.py,synthetic-procedural,original-project,fogo dos braseiros (loop espacial)
+flesh_hit_1.wav,tools/generate_audio.py,synthetic-procedural,original-project,impacto em carne
+flesh_hit_2.wav,tools/generate_audio.py,synthetic-procedural,original-project,impacto em carne
+flesh_hit_3.wav,tools/generate_audio.py,synthetic-procedural,original-project,impacto em carne
+ghoul_step_1.wav,tools/generate_audio.py,synthetic-procedural,original-project,passo pesado do ghoul
+ghoul_step_2.wav,tools/generate_audio.py,synthetic-procedural,original-project,passo pesado do ghoul
+ghoul_step_3.wav,tools/generate_audio.py,synthetic-procedural,original-project,passo pesado do ghoul
+heartbeat.wav,tools/generate_audio.py,synthetic-procedural,original-project,batimento em vida baixa (loop)
+pickup.wav,tools/generate_audio.py,synthetic-procedural,original-project,cristal de alma coletado
+player_hurt_1.wav,tools/generate_audio.py,synthetic-procedural,original-project,dor do jogador
+player_hurt_2.wav,tools/generate_audio.py,synthetic-procedural,original-project,dor do jogador
+rain_loop.wav,tools/generate_audio.py,synthetic-procedural,original-project,chuva estéreo (loop)
+shotgun_1.wav,tools/generate_audio.py,synthetic-procedural,original-project,disparo da escopeta
+shotgun_2.wav,tools/generate_audio.py,synthetic-procedural,original-project,disparo da escopeta
+shotgun_3.wav,tools/generate_audio.py,synthetic-procedural,original-project,disparo da escopeta
+shotgun_4.wav,tools/generate_audio.py,synthetic-procedural,original-project,disparo da escopeta
+shotgun_reload.wav,tools/generate_audio.py,synthetic-procedural,original-project,recarga: abrir, ejetar, inserir, fechar
+skull_wail.wav,tools/generate_audio.py,synthetic-procedural,original-project,lamento da caveira com chifres
+step_mud_1.wav,tools/generate_audio.py,synthetic-procedural,original-project,passo do jogador na lama
+step_mud_2.wav,tools/generate_audio.py,synthetic-procedural,original-project,passo do jogador na lama
+step_mud_3.wav,tools/generate_audio.py,synthetic-procedural,original-project,passo do jogador na lama
+step_mud_4.wav,tools/generate_audio.py,synthetic-procedural,original-project,passo do jogador na lama
+thunder_1.wav,tools/generate_audio.py,synthetic-procedural,original-project,trovão
+thunder_2.wav,tools/generate_audio.py,synthetic-procedural,original-project,trovão
+thunder_3.wav,tools/generate_audio.py,synthetic-procedural,original-project,trovão
+undead_attack_1.wav,tools/generate_audio.py,synthetic-procedural,original-project,grito de ataque do ghoul
+undead_attack_2.wav,tools/generate_audio.py,synthetic-procedural,original-project,grito de ataque do ghoul
+undead_death_1.wav,tools/generate_audio.py,synthetic-procedural,original-project,morte do ghoul com queda
+undead_death_2.wav,tools/generate_audio.py,synthetic-procedural,original-project,morte do ghoul com queda
+undead_groan_1.wav,tools/generate_audio.py,synthetic-procedural,original-project,gemido próximo por formantes
+undead_groan_2.wav,tools/generate_audio.py,synthetic-procedural,original-project,gemido próximo por formantes
+undead_groan_3.wav,tools/generate_audio.py,synthetic-procedural,original-project,gemido próximo por formantes
+undead_groan_4.wav,tools/generate_audio.py,synthetic-procedural,original-project,gemido próximo por formantes
+undead_groan_far_1.wav,tools/generate_audio.py,synthetic-procedural,original-project,gemido distante pré-filtrado
+undead_groan_far_2.wav,tools/generate_audio.py,synthetic-procedural,original-project,gemido distante pré-filtrado
+undead_groan_far_3.wav,tools/generate_audio.py,synthetic-procedural,original-project,gemido distante pré-filtrado
+undead_groan_far_4.wav,tools/generate_audio.py,synthetic-procedural,original-project,gemido distante pré-filtrado
+undead_hurt_1.wav,tools/generate_audio.py,synthetic-procedural,original-project,dor de morto-vivo
+undead_hurt_2.wav,tools/generate_audio.py,synthetic-procedural,original-project,dor de morto-vivo
+undead_hurt_3.wav,tools/generate_audio.py,synthetic-procedural,original-project,dor de morto-vivo
+undead_snarl_1.wav,tools/generate_audio.py,synthetic-procedural,original-project,rosnado de ataque dos esqueletos
+undead_snarl_2.wav,tools/generate_audio.py,synthetic-procedural,original-project,rosnado de ataque dos esqueletos
+wave_clear.wav,tools/generate_audio.py,synthetic-procedural,original-project,onda concluída
+wave_start.wav,tools/generate_audio.py,synthetic-procedural,original-project,início de onda
+wind_loop.wav,tools/generate_audio.py,synthetic-procedural,original-project,vento estéreo (loop)
