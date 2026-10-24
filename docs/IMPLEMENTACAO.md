@@ -7,6 +7,18 @@ Plataforma inicial: desktop. iOS é etapa futura.
 Referência: https://x.com/dimillian/status/2107161600335507611 e vídeos de "Dark Veil — The Blackwood" (ondas 1–5, chuva forte, braseiros, esqueletos, escopeta dupla) fornecidos pelo usuário.
 2026-10-08: o usuário trocou zumbis por esqueletos e outros mortos-vivos da imagem de elenco; os personagens são originais no mesmo estilo, mais voltados ao realismo (pedido posterior), sem copiar os ativos de referência.
 
+### 2026-10-24 — trilha web (alternativa ao Bevy neste Mac)
+
+- **Motivo:** GPU Intel Iris Pro / macOS 12 aborta o compilador Metal em qualquer cena Bevy 0.16; a trilha Rust permanece no repositório, mas o desenvolvimento jogável neste Mac passa para **Three.js + Blender + GitHub Pages**.
+- **Branch:** `feat/web-threejs-engine`.
+- **Runtime:** `web/` (Vite + TypeScript + Three.js), alvos **desktop browser + mobile landscape**.
+- **Engine:** Battle Hell Engine com VFX reformulado do Dark Veil — partículas 3D + **motor de sprites 2D procedurais** (`ProceduralSpriteEngine`).
+- **Editor:** app **macOS-only** via Tauri (`editor/`), embutindo `web/editor.html` (abrir mapa, weather, props, play/walk na viewport).
+- **Arte:** reutiliza `assets/models/*.glb` do kit Blender existente; sem chaves Tripo/Gemini/ElevenLabs no ambiente.
+- **Deploy:** workflow `.github/workflows/pages.yml`, base `/battle-hell/`.
+- **Direção visual:** capturas anexadas pelo usuário (HUD gótico, braseiros, fog/lua, editor Abbey Clearing) — referência de nível, não cópia de ativos.
+- **2026-10-24 (obrigatório):** walk-preview Abbey Clearing (`artifacts/visual-goal/`) define a meta de cenário (portão+faixas), arma FPS, fogo/fumaça, tiro e esqueleto atingido; engine otimiza VFX 3D + sprites 2D + texturas compartilhadas (`MaterialKit`, atlas dual-layer).
+
 ## Referências visuais
 
 As capturas não acompanham o repositório público (`.gitignore`). Cópias privadas: `docs/references/reference-scene.jpeg` (arena com portal, braseiros, cristais, HUD) e `docs/references/reference-enemies.jpeg` (elenco low poly de esqueletos, cavaleiro, ghoul, caveira com chifres).

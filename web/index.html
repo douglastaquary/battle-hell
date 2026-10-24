@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"
+    />
+    <meta name="theme-color" content="#0a0c10" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <link rel="icon" href="data:," />
+    <title>Battle Hell — Batalha no Inferno</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Spectral:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <main id="app">
+      <canvas id="game-canvas" aria-label="Battle Hell arena"></canvas>
+
+      <section id="bh-hud" aria-live="polite">
+        <div class="hud-top">
+          <div class="hud-score" id="hud-score">Score: 0</div>
+          <div class="hud-center">
+            <div id="hud-wave">WAVE 01 / 05</div>
+            <div id="hud-souls">0 SOULS REMAIN</div>
+          </div>
+          <div class="hud-gold" id="hud-gold">Gold: 0</div>
+        </div>
+
+        <div class="hud-banner" id="hud-banner">LOADING…</div>
+        <div class="hud-phase" id="hud-phase"></div>
+
+        <div class="crosshair" aria-hidden="true"></div>
+
+        <div class="hud-bottom">
+          <div class="hud-vital">
+            <div class="hp-orb">
+              <div id="hud-hp-fill"></div>
+              <span id="hud-hp">100 / 100 HP</span>
+            </div>
+            <div class="hud-ammo">
+              <span>SHELLS</span>
+              <strong id="hud-shells">2 / 2</strong>
+              <div id="hud-armor"></div>
+            </div>
+          </div>
+
+          <div class="hud-mid">
+            <div id="hud-mult">x1.0</div>
+            <div class="level-row">
+              <span id="hud-level">Level 1</span>
+              <span id="hud-xp">0 / 30 XP</span>
+            </div>
+          </div>
+
+          <div class="hud-soul">
+            <div class="soul-label">Soul Energy <span id="hud-soul-energy">40%</span></div>
+            <div class="soul-track"><div id="hud-soul-bar"></div></div>
+            <div class="weapon-chip">DOUBLE BARREL · READY</div>
+          </div>
+        </div>
+      </section>
+
+      <div id="touch-controls" aria-hidden="true">
+        <div id="touch-stick"><div id="touch-knob"></div></div>
+        <button id="fire-button" type="button">FIRE</button>
+      </div>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

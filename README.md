@@ -1,9 +1,31 @@
 # Battle Hell — Batalha no Inferno — arena 3D de suspense
 
-Jogo de arena em primeira pessoa feito com Rust + Bevy 0.16.1, com arte gerada por script no Blender e áudio sintetizado por script em Python.
+Jogo de arena em primeira pessoa. **Duas trilhas no mesmo repositório:**
+
+| Trilha | Stack | Onde roda |
+| --- | --- | --- |
+| **Web (ativa neste Mac)** | Three.js + Vite + Blender GLB | Browser / GitHub Pages / mobile landscape |
+| Desktop | Rust + Bevy 0.16.1 | GPU com Metal/Vulkan ok (Bevy quebra na Iris Pro deste Mac) |
+
+Editor de mapas: app **macOS** Tauri (`editor/`) sobre o runtime web.
 Nome provisório; projeto original inspirado no clima visual das referências (chuva, fogo, ruínas góticas, mortos-vivos low poly).
 
-## Estado real da entrega
+## Jogar na web (recomendado neste Mac)
+
+```sh
+cd web
+npm install
+npm run dev
+```
+
+- Jogo: http://127.0.0.1:5188/
+- Editor: http://127.0.0.1:5188/editor.html
+- Build Pages: `VITE_BASE=/battle-hell/ npm run build`
+- Controles: clique para capturar mouse **e liberar áudio**, WASD, Shift, clique atira, R recarrega (também reinicia após derrota/vitória), **M** muta; no mobile landscape use stick + FIRE.
+
+Detalhes do motor: [`docs/web/ENGINE.md`](docs/web/ENGINE.md). Editor nativo: [`editor/README.md`](editor/README.md).
+
+## Estado real da entrega (trilha Rust)
 
 - **Jogo**: 5 ondas de mortos-vivos que surgem do chão ou entram pelo portão; escopeta de cano duplo (2 cartuchos, 9 chumbos, recarga), tiro na cabeça, armadura, cristais de alma que curam, vitória/derrota, pausa, mudo e reinício.
 - **Inimigos** (GLB com rig e 5 animações: Idle, Walk, Attack, Hit, Death): esqueleto com clava, esqueleto ceifador (rápido, ziguezague), cavaleiro de placas (resistente), senhor da guerra com chifres (chefe da onda 5), ghoul de carne seca e caveira com chifres flutuante (controlada por código).

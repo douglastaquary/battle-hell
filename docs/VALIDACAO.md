@@ -1,5 +1,50 @@
 # Validação
 
+## 2026-10-24 — trilha web Three.js (alternativa Iris Pro)
+
+Equipamento: mesmo MacBook Pro Iris Pro / macOS 12.7.6. Node v22.6.0. Vite fixado em **5.4.19** (Vite 8/rolldown falhou: binding darwin-x64 ausente).
+
+### Executado
+
+| Comando | Resultado |
+|---|---|
+| Branch `feat/web-threejs-engine` | Criada a partir de `main`. |
+| `cd web && npm install && npx tsc --noEmit` | OK após ajustes de tipos/hooks. |
+| `VITE_BASE=/battle-hell/ npm run build` | OK; `dist/` com `index.html`, `editor.html`, 17× `.glb`, WAV, `maps/`. Sem `.blend` no dist. |
+| `npm run dev` + curl | `200` em `/`, `/editor.html`, `/models/skeleton.glb`, `/models/brazier.glb`. |
+| Probe credenciais Tripo/Gemini/ElevenLabs | MISSING — arte via GLB local + procedural. |
+
+### Executado depois (mesmo dia — áudio + evidência + Tauri check)
+
+| Comando | Resultado |
+|---|---|
+| Web Audio (`AudioSystem`) | Unlock no gesto; loops rain/wind/fire/drone; SFX shotgun/hit/death/thunder/waves; M muta. |
+| `npx playwright test tests/visual.spec.ts` | **2 passed** (desktop + mobile landscape). |
+| `inspect-threejs-canvas.mjs --manifest … --seed 42` | PASS desktop+mobile `pass-web-audio-2`; GPU hardware; budget OK. |
+| `check_evidence.py` | Evidence check passed. |
+| `cd editor && npm i && npx tauri icon …` | Ícones icns/ico gerados. |
+| `cargo check` em `editor/src-tauri` | **Finished** (~5m47s, baixou crates Tauri 2). |
+
+Scorecard preliminar: média ~**1.5** (não premium). Detalhes em `artifacts/visual-scorecard.md` e `artifacts/final-evidence.md`.
+
+### 2026-10-24 (noite) — passe visual objetivo Abbey Clearing
+
+| Comando | Resultado |
+|---|---|
+| PostPipeline (bloom) + MaterialKit + AbbeyDressing + VFX dual-layer | Integrado. |
+| `inspect … pass-goal-1` | PASS desktop/mobile; entropy **5.28**, contrast **117**, edges **0.17**, dominant **0.23**, budget OK. |
+| `playwright test tests/visual.spec.ts` | **2 passed**. |
+| Scorecard | média ~**1.95** (rewards ainda 1.5). Captura: portão+banners, hex path, esqueleto com hit, arma FPS. |
+
+Alvo obrigatório: `artifacts/visual-goal/` (jpg gitignored; ver README).
+
+### Ainda pendente
+
+- Pickups/rewards para fechar scorecard premium.
+- `tauri dev` / `.app` smoke.
+- Animações GLB Idle/Walk/Attack.
+- Deploy Pages real.
+
 ## 2026-10-08/09 — elenco de mortos-vivos, áudio e jogo em módulos
 
 Equipamento: MacBook Pro com Intel Core i7-4770HQ 2,2 GHz (4 núcleos), 16 GB, GPU integrada Intel Iris Pro (Metal), macOS 12.7.6 (21H1320).

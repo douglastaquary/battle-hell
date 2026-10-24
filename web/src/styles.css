@@ -1,0 +1,326 @@
+:root {
+  color-scheme: dark;
+  --bg: #07090d;
+  --gold: #d4b56a;
+  --gold-dim: #8a7340;
+  --blood: #7a1f24;
+  --blood-bright: #c43a40;
+  --ink: #e8e0d0;
+  --muted: #9a9080;
+  --panel: rgba(8, 10, 14, 0.55);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  font-family: 'Spectral', Georgia, serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#game-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+#bh-hud {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  color: var(--ink);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
+}
+
+.hud-top {
+  position: absolute;
+  top: calc(12px + var(--safe-top));
+  left: calc(16px + var(--safe-left));
+  right: calc(16px + var(--safe-right));
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: start;
+  font-family: 'Cinzel', Georgia, serif;
+  letter-spacing: 0.04em;
+}
+
+.hud-score {
+  justify-self: start;
+  color: var(--gold);
+  font-size: 15px;
+}
+
+.hud-gold {
+  justify-self: end;
+  color: var(--gold);
+  font-size: 15px;
+}
+
+.hud-center {
+  text-align: center;
+}
+
+#hud-wave {
+  font-size: clamp(16px, 2.4vw, 22px);
+  font-weight: 700;
+  color: var(--gold);
+}
+
+#hud-souls {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.hud-banner {
+  position: absolute;
+  top: 22%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: clamp(18px, 3vw, 28px);
+  color: var(--gold);
+  letter-spacing: 0.08em;
+  text-align: center;
+  max-width: 90vw;
+  min-height: 1.2em;
+}
+
+.hud-phase {
+  position: absolute;
+  top: calc(48px + var(--safe-top));
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: var(--muted);
+  opacity: 0.7;
+}
+
+.crosshair {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(232, 224, 208, 0.75);
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4);
+}
+
+.crosshair::before,
+.crosshair::after {
+  content: '';
+  position: absolute;
+  background: rgba(232, 224, 208, 0.85);
+}
+
+.crosshair::before {
+  width: 1px;
+  height: 8px;
+  left: 6px;
+  top: -10px;
+  box-shadow: 0 24px 0 rgba(232, 224, 208, 0.85);
+}
+
+.crosshair::after {
+  height: 1px;
+  width: 8px;
+  top: 6px;
+  left: -10px;
+  box-shadow: 24px 0 0 rgba(232, 224, 208, 0.85);
+}
+
+.hud-bottom {
+  position: absolute;
+  left: calc(12px + var(--safe-left));
+  right: calc(12px + var(--safe-right));
+  bottom: calc(12px + var(--safe-bottom));
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 12px;
+  align-items: end;
+}
+
+.hud-vital {
+  display: flex;
+  gap: 12px;
+  align-items: end;
+}
+
+.hp-orb {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  border: 2px solid var(--gold-dim);
+  background: radial-gradient(circle at 40% 30%, #2a1012, #100608 70%);
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 -10px 20px rgba(0, 0, 0, 0.55);
+}
+
+#hud-hp-fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 74%;
+  background: linear-gradient(180deg, var(--blood-bright), var(--blood));
+  transition: height 120ms linear;
+}
+
+#hud-hp {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  font-family: 'Cinzel', Georgia, serif;
+  z-index: 1;
+}
+
+.hud-ammo {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.hud-ammo strong {
+  display: block;
+  color: var(--gold);
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: 20px;
+  font-variant-numeric: tabular-nums;
+}
+
+#hud-armor {
+  color: #9ab0c8;
+  min-height: 1em;
+}
+
+.hud-mid {
+  text-align: center;
+  font-family: 'Cinzel', Georgia, serif;
+}
+
+#hud-mult {
+  font-size: clamp(28px, 5vw, 42px);
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.level-row {
+  font-size: 12px;
+  color: var(--muted);
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.hud-soul {
+  justify-self: end;
+  width: min(220px, 42vw);
+  text-align: right;
+}
+
+.soul-label {
+  font-size: 12px;
+  color: #b8a0d8;
+  font-family: 'Cinzel', Georgia, serif;
+}
+
+.soul-track {
+  margin-top: 4px;
+  height: 8px;
+  border: 1px solid var(--gold-dim);
+  background: rgba(0, 0, 0, 0.45);
+}
+
+#hud-soul-bar {
+  height: 100%;
+  width: 40%;
+  background: linear-gradient(90deg, #5a2a8a, #c9a0ff);
+}
+
+.weapon-chip {
+  margin-top: 6px;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: var(--gold);
+  font-family: 'Cinzel', Georgia, serif;
+}
+
+#touch-controls {
+  display: none;
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+#touch-stick {
+  pointer-events: auto;
+  position: absolute;
+  left: calc(24px + var(--safe-left));
+  bottom: calc(24px + var(--safe-bottom));
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  border: 1px solid rgba(212, 181, 106, 0.35);
+  background: rgba(0, 0, 0, 0.28);
+}
+
+#touch-knob {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(212, 181, 106, 0.55);
+  transform: translate(-50%, -50%);
+}
+
+#fire-button {
+  pointer-events: auto;
+  position: absolute;
+  right: calc(24px + var(--safe-right));
+  bottom: calc(28px + var(--safe-bottom));
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  border: 2px solid var(--gold-dim);
+  background: rgba(90, 20, 24, 0.65);
+  color: var(--gold);
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+}
+
+@media ((hover: none) and (orientation: landscape)),
+  ((pointer: coarse) and (orientation: landscape)),
+  ((max-width: 960px) and (orientation: landscape) and (max-height: 500px)) {
+  #touch-controls {
+    display: block;
+  }
+  .hud-bottom {
+    bottom: calc(8px + var(--safe-bottom));
+  }
+  .hud-vital .hp-orb {
+    width: 68px;
+    height: 68px;
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "id": "abbey-clearing",
+  "name": "Abbey Clearing",
+  "seed": 413287,
+  "arenaRadius": 16,
+  "playerStart": [0, 1.6, 6],
+  "weather": {
+    "style": "Moonlit forest",
+    "zenithColor": "#1a2438",
+    "moonSize": 1.2,
+    "moonBrightness": 6.9,
+    "stars": 0.32,
+    "cloudCoverage": 0.55,
+    "cloudSpeed": 0.08,
+    "moonlightIntensity": 0.72,
+    "ambientIntensity": 0.128,
+    "azimuthDeg": -30,
+    "elevationDeg": 30.13,
+    "lightScattering": 0.022,
+    "fogColor": "#9aa8b8",
+    "fogDensity": 0.019,
+    "fogStart": 11,
+    "fogHeightFalloff": 0.14
+  },
+  "props": []
+}

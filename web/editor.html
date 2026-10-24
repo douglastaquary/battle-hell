@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Battle Hell — Map Editor</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/src/engine/editor/editor.css" />
+  </head>
+  <body class="editor-body">
+    <header class="editor-top">
+      <div class="brand">Battle Hell — Map Editor</div>
+      <div class="top-actions">
+        <button type="button" data-act="play">Play</button>
+        <button type="button" data-act="save">Save</button>
+        <button type="button" data-act="reload">Reload</button>
+        <button type="button" data-act="undo" disabled>Undo</button>
+        <button type="button" data-act="redo" disabled>Redo</button>
+        <button type="button" data-act="reset">Reset view</button>
+        <button type="button" data-act="pause-fx">Pause effects</button>
+      </div>
+      <div class="unsaved" id="unsaved">Unsaved</div>
+    </header>
+
+    <div class="editor-sub">
+      <span>Blackpine</span>
+      <span>›</span>
+      <strong id="map-name">Abbey Clearing</strong>
+      <span class="sep">·</span>
+      <span>Round 1</span>
+      <span class="sep">·</span>
+      <span>Seed <span id="map-seed">413287</span></span>
+      <button type="button" data-act="load">Load level</button>
+    </div>
+
+    <div class="editor-layout">
+      <aside class="panel left">
+        <h2>Objects (<span id="obj-count">0</span>)</h2>
+        <ul id="object-list"></ul>
+        <div class="add-prop">
+          <label>Add a prop</label>
+          <select id="prop-kind">
+            <option value="tree_a">DeadTree</option>
+            <option value="rock">Rock</option>
+            <option value="grave_a">Tomb</option>
+            <option value="brazier">Brazier</option>
+            <option value="crystal">Crystal</option>
+            <option value="gallows">Gallows</option>
+          </select>
+          <button type="button" data-act="add-prop">Add in front of camera</button>
+          <p class="hint">Terrain and distant scenery remain fixed. Neighbor rooms: load those maps.</p>
+        </div>
+      </aside>
+
+      <section class="viewport-wrap">
+        <canvas id="editor-canvas"></canvas>
+        <div id="walk-bar" class="walk-bar hidden">
+          <button type="button" data-act="pause-walk">Pause</button>
+          <span>WASD move · Space jump · Shift dodge · Tab release mouse · Esc pause · F5 play/pause</span>
+          <span id="stamina-readout">Stamina 100</span>
+        </div>
+        <div id="loading-ring" class="loading-ring" hidden></div>
+      </section>
+
+      <aside class="panel right">
+        <h2>Controls</h2>
+        <p class="hint">Right-drag fly · WASD · Q/E up/down</p>
+        <label>Flight speed <input id="flight-speed" type="range" min="2" max="30" value="10" /></label>
+
+        <h2>Weather / Sky</h2>
+        <label>Style
+          <select id="sky-style">
+            <option>Moonlit forest</option>
+            <option>Storm abbey</option>
+            <option>Blood dusk</option>
+          </select>
+        </label>
+        <label>Zenith <input id="zenith" type="color" value="#1a2438" /></label>
+        <label>Moon size <input id="moon-size" type="range" min="0.4" max="3" step="0.05" value="1.2" /></label>
+        <label>Moon brightness <input id="moon-bright" type="range" min="1" max="12" step="0.1" value="6.9" /></label>
+        <label>Stars <input id="stars" type="range" min="0" max="1" step="0.01" value="0.32" /></label>
+        <label>Cloud coverage <input id="clouds" type="range" min="0" max="1" step="0.01" value="0.55" /></label>
+        <label>Cloud speed <input id="cloud-speed" type="range" min="0" max="0.5" step="0.01" value="0.08" /></label>
+
+        <h2>Lighting</h2>
+        <label>Moonlight <input id="moonlight" type="range" min="0" max="2" step="0.01" value="0.72" /></label>
+        <label>Ambient <input id="ambient" type="range" min="0" max="1" step="0.001" value="0.128" /></label>
+        <label>Azimuth <input id="azimuth" type="range" min="-180" max="180" step="1" value="-30" /></label>
+        <label>Elevation <input id="elevation" type="range" min="5" max="85" step="0.01" value="30.13" /></label>
+        <label>Light scattering <input id="scatter" type="range" min="0" max="0.1" step="0.001" value="0.022" /></label>
+
+        <h2>Fog</h2>
+        <label>Fog color <input id="fog-color" type="color" value="#9aa8b8" /></label>
+        <label>Density <input id="fog-density" type="range" min="0" max="0.08" step="0.001" value="0.019" /></label>
+        <label>Start distance <input id="fog-start" type="range" min="0" max="40" step="1" value="11" /></label>
+        <label>Height falloff <input id="fog-falloff" type="range" min="0" max="1" step="0.01" value="0.14" /></label>
+      </aside>
+    </div>
+
+    <footer class="editor-foot">
+      <span id="status-msg">Map ready. Save to keep your edits.</span>
+      <code id="map-path">maps/abbey-clearing.json</code>
+      <button type="button" data-act="open-file">Open file</button>
+    </footer>
+
+    <input id="file-open" type="file" accept="application/json,.json" hidden />
+    <script type="module" src="/src/engine/editor/editor-main.ts"></script>
+  </body>
+</html>
