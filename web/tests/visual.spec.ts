@@ -54,10 +54,17 @@ test('renders a nonblank interactive game canvas', async ({ page }, testInfo) =>
 
   await page.goto('/');
   await expect(page.locator('#game-canvas')).toBeVisible();
+  await expect(page.locator('#weapon-select')).toBeVisible();
+  await expect(page.locator('#weapon-fan .wcard')).toHaveCount(3);
   await page.waitForFunction(() => (window.__THREE_GAME_DIAGNOSTICS__?.frame ?? 0) > 10);
 
   const sample = await sampleCanvas(page);
   expect(sample, JSON.stringify(sample)).toMatchObject({ ok: true });
+
+  await page.locator('#weapon-confirm').click();
+  await expect(page.locator('#weapon-select')).toBeHidden();
+  await expect(page.locator('#bh-hud')).toBeVisible();
+  await page.waitForTimeout(200);
 
   const before = await page.evaluate(() => {
     const diag = window.__THREE_GAME_DIAGNOSTICS__ as

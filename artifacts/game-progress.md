@@ -1,32 +1,22 @@
 # Battle Hell — progresso (trilha web)
 
-## Intent
-
-Three.js + Blender + Pages; **objetivo visual obrigatório** = walk-preview Abbey Clearing (anexo do usuário).
-
 ## Completo
 
-- [x] Áudio web + testes Playwright
-- [x] Alvo visual registrado (`artifacts/visual-goal/`)
-- [x] Abbey dressing (banners, hex path, grate, stairs, pines)
-- [x] Bloom + RoomEnvironment (`PostPipeline`)
-- [x] MaterialKit (texturas canvas compartilhadas)
-- [x] Sprites dual-layer (aditivo + soft) + dust/fire/hit/muzzle
-- [x] Arma authored (metal/brass/`><`)
-- [x] Hit no esqueleto (flash emissive + VFX)
-- [x] Evidence `pass-goal-1` (entropy 5.28, contrast 117)
-- [x] Scorecard ~1.95
+- [x] Loadout de cartas + combate (pellets somados + cristal)
+- [x] VFX híbrido sprites 2D + floaters (`pass-vfx-2`)
+- [x] Remodelagem Blender: **Abyss Longwatch**, abbey, mushroom, graves, brazier
+- [x] Cenário densificado (vitral, poças roxas, cogumelos, pinheiros)
+- [x] Evidence `pass-blender-rich-1` (entropy 6.0, contrast 151)
+- [x] Scorecard média ~**2.18**
 
 ## Pendente
 
-- [ ] Rewards/pickups visíveis (cristal de alma)
-- [ ] Refinar silhueta da arma vs ref
-- [ ] Animações GLB Idle/Walk
-- [ ] `tauri dev` smoke
-- [ ] Merge + Pages
+- [ ] Média scorecard ≥ 2.3 (polish fino HUD / inimigos)
+- [ ] `tauri build` / `tauri dev` janela interativa
+- [ ] Merge + GitHub Pages live
 
 ## Próximo
 
-1. Pickup cristal + VFX soul  
-2. Polir arma / bloom fino  
-3. Tauri dev  
+1. Ajuste fino pose/escala da Longwatch no frame FPS
+2. Mais props Blender (pines dedicados) se ainda parecer vazio vs referência
+3. PR / Pages

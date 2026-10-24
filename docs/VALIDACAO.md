@@ -38,11 +38,55 @@ Scorecard preliminar: média ~**1.5** (não premium). Detalhes em `artifacts/vis
 
 Alvo obrigatório: `artifacts/visual-goal/` (jpg gitignored; ver README).
 
+### 2026-10-24 — pickups + anim + tauri info
+
+| Comando | Resultado |
+|---|---|
+| Soul pickups + arma polish + AnimationMixer nos GLB | Integrado. |
+| `inspect … pass-pickups-1` | PASS; entropy ~5, contrast ~92–125; cristais visíveis na captura. |
+| `playwright test tests/visual.spec.ts` | **2 passed**. |
+| Scorecard | **todas as categorias ≥ 2**, média **2.0**. |
+| `npx tauri info` (editor/) | Ambiente OK (rustc 1.99, Xcode 14.2, CLI 2.12). `@tauri-apps/api` JS não instalado (shell nativo ok). |
+
+### 2026-10-24 — loadout de cartas (escolher arma)
+
+| Comando | Resultado |
+|---|---|
+| Tela `#weapon-select` (fan LONGSWORD / DOUBLE BARREL / SOUL LANTERN) → `beginWithWeapon` | Integrado; marca Battle Hell. |
+| `cd web && npx tsc --noEmit` | OK. |
+| `npx playwright test tests/visual.spec.ts` | **2 passed** (confirma `#weapon-confirm` antes do movimento). |
+
+### 2026-10-24 — fix combate (dano + cristal)
+
+| Comando | Resultado |
+|---|---|
+| Bug: só o 1º pellet aplicava dano (~8 vs 60 HP) | Corrigido: soma pellets por inimigo; hitbox maior; drop de cristal na morte. |
+| `npx playwright test tests/combat-kill.spec.ts` | **1 passed** (`kill-drop` → enemies 0, pickups 1). |
+
+### 2026-10-24 — VFX rework (sprites 2D + floaters)
+
+| Comando | Resultado |
+|---|---|
+| Atlas 16 flavors + shock/mist/impact + CombatFloaters | Integrado em `VfxDirector`. |
+| `npx tsc --noEmit` | OK. |
+| `playwright` combat + visual (desktop) | **2 passed**. |
+| `inspect … pass-vfx-2` | PASS desktop/mobile; entropy ~5; contrast 92–126; budget OK; SHOCKED legível na captura. |
+| Scorecard VFX | **2.3**; média ~**2.04**. |
+
+### 2026-10-24 — Blender rich pass (arma + abadia)
+
+| Comando | Resultado |
+|---|---|
+| `Blender 2.91 --python tools/build_blender_assets.py -- weapon abbey mushroom graves brazier rock` | GLBs exportados (`weapon` 144KB, `abbey` 73KB, …). |
+| Viewmodel carrega `weapon.glb`; mapa spawna `abbey` + mushrooms; AbbeyDressing vitral/poças | Integrado. |
+| `playwright` visual+combat desktop | **2 passed**. |
+| `inspect … pass-blender-rich-1` | PASS; entropy **6.04**, contrast **151**, budget OK. |
+| Scorecard | média ~**2.18** (hero/world/art ≥ 2.2). |
+
 ### Ainda pendente
 
-- Pickups/rewards para fechar scorecard premium.
-- `tauri dev` / `.app` smoke.
-- Animações GLB Idle/Walk/Attack.
+- `tauri dev` / `tauri build` com janela .app (longo).
+- Subir média scorecard para ≥ 2.3.
 - Deploy Pages real.
 
 ## 2026-10-08/09 — elenco de mortos-vivos, áudio e jogo em módulos

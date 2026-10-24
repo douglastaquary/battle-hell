@@ -17,22 +17,22 @@ export class PostPipeline {
   constructor(renderer: THREE.WebGLRenderer, scene: THREE.Scene, camera: THREE.Camera) {
     this.pmrem = new THREE.PMREMGenerator(renderer);
     scene.environment = this.pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-    scene.environmentIntensity = 0.35;
+    scene.environmentIntensity = 0.22;
 
     this.composer = new EffectComposer(renderer);
     this.composer.addPass(new RenderPass(scene, camera));
 
     const size = new THREE.Vector2();
     renderer.getSize(size);
-    // Threshold high so moon/fire bloom; metals/HUD stay readable (goal walk-preview).
-    this.bloom = new UnrealBloomPass(size, 0.42, 0.55, 0.9);
+    // Favor moon/fire bloom; keep weapon metals from washing out.
+    this.bloom = new UnrealBloomPass(size, 0.38, 0.5, 0.91);
     this.composer.addPass(this.bloom);
     this.composer.addPass(new OutputPass());
   }
 
   setMobile(mobile: boolean): void {
-    this.bloom.strength = mobile ? 0.28 : 0.42;
-    this.bloom.threshold = mobile ? 0.92 : 0.9;
+    this.bloom.strength = mobile ? 0.26 : 0.38;
+    this.bloom.threshold = mobile ? 0.93 : 0.91;
   }
 
   setSize(width: number, height: number, dpr: number): void {

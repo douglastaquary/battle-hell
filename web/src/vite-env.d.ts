@@ -4,6 +4,7 @@ interface ThreeGameDiagnostics {
   frame: number;
   phase?: string;
   enemies?: number;
+  pickups?: number;
   player: {
     position: { x: number; y: number; z: number };
     health?: number;

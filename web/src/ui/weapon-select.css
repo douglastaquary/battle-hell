@@ -1,0 +1,404 @@
+/* Loadout — template de mesa + fan de cartas (inspirado no anexo; marca Battle Hell). */
+
+body.in-loadout #bh-hud,
+body.in-loadout #touch-controls,
+body.in-loadout .crosshair {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+#weapon-select {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  grid-template-columns: minmax(220px, 0.9fr) minmax(320px, 1.2fr);
+  gap: clamp(12px, 3vw, 40px);
+  align-items: center;
+  padding: calc(24px + var(--safe-top)) calc(28px + var(--safe-right))
+    calc(28px + var(--safe-bottom)) calc(28px + var(--safe-left));
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(80, 20, 18, 0.55), transparent 55%),
+    radial-gradient(circle at 8% 70%, rgba(255, 140, 40, 0.12), transparent 28%),
+    radial-gradient(circle at 92% 65%, rgba(255, 140, 40, 0.1), transparent 26%),
+    linear-gradient(180deg, #1a0c0c 0%, #2a1010 40%, #140808 100%);
+  color: #f2ebe0;
+  overflow: hidden;
+}
+
+#weapon-select[hidden] {
+  display: none !important;
+}
+
+#weapon-select::before {
+  content: '';
+  position: absolute;
+  inset: 12% 6% 8%;
+  border-radius: 8px;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(60, 18, 16, 0.35) 0 2px,
+      transparent 2px 7px
+    ),
+    linear-gradient(180deg, #4a1814, #2e0e0c);
+  box-shadow:
+    inset 0 0 80px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(212, 181, 106, 0.15);
+  pointer-events: none;
+}
+
+.loadout-brand {
+  position: relative;
+  z-index: 1;
+  max-width: 420px;
+}
+
+.loadout-skull {
+  width: 56px;
+  height: 56px;
+  margin-bottom: 10px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 35%, #f0d878, #a87820 45%, #2a1a10 70%);
+  box-shadow: 0 0 18px rgba(255, 200, 80, 0.45);
+  position: relative;
+}
+
+.loadout-skull::before,
+.loadout-skull::after {
+  content: '';
+  position: absolute;
+  top: 18px;
+  width: 8px;
+  height: 10px;
+  border-radius: 50%;
+  background: #1a1008;
+}
+
+.loadout-skull::before {
+  left: 14px;
+}
+.loadout-skull::after {
+  right: 14px;
+}
+
+.loadout-title {
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: clamp(36px, 6vw, 64px);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 0.95;
+  margin: 0;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.65);
+}
+
+.loadout-tag {
+  margin: 14px 0 0;
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: clamp(13px, 2vw, 18px);
+  letter-spacing: 0.14em;
+  color: #d4b56a;
+}
+
+.loadout-coins {
+  margin-top: 28px;
+  display: flex;
+  gap: 10px;
+  opacity: 0.85;
+}
+
+.loadout-coins span {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #ffe08a, #b8862a 60%, #5a3a10);
+  box-shadow: 0 2px 0 #3a2408;
+}
+
+.loadout-panel {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+#weapon-fan {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0;
+  min-height: min(62vh, 520px);
+  perspective: 900px;
+}
+
+.wcard {
+  --tilt: 0deg;
+  --lift: 0px;
+  appearance: none;
+  border: none;
+  cursor: pointer;
+  width: clamp(150px, 22vw, 210px);
+  height: clamp(260px, 52vh, 400px);
+  margin: 0 -10px;
+  padding: 14px 12px 16px;
+  border-radius: 10px;
+  text-align: left;
+  color: #1a1410;
+  background: #e8dfd0;
+  box-shadow:
+    0 18px 40px rgba(0, 0, 0, 0.55),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+  transform: rotate(var(--tilt)) translateY(var(--lift));
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    filter 180ms ease;
+  display: grid;
+  grid-template-rows: auto 1fr auto auto auto auto auto;
+  gap: 6px;
+  position: relative;
+  overflow: hidden;
+}
+
+.wcard:nth-child(1) {
+  --tilt: -10deg;
+  --lift: 18px;
+  z-index: 1;
+}
+.wcard:nth-child(2) {
+  --tilt: 0deg;
+  --lift: 0px;
+  z-index: 3;
+}
+.wcard:nth-child(3) {
+  --tilt: 10deg;
+  --lift: 18px;
+  z-index: 2;
+}
+
+.wcard.is-selected {
+  --lift: -12px;
+  z-index: 5;
+  box-shadow:
+    0 26px 50px rgba(0, 0, 0, 0.65),
+    0 0 0 2px #d4b56a,
+    inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+  filter: brightness(1.05);
+}
+
+.wcard:focus-visible {
+  outline: 2px solid #d4b56a;
+  outline-offset: 3px;
+}
+
+.wcard--holofoil {
+  background:
+    linear-gradient(
+      125deg,
+      #c8f0d8 0%,
+      #e8d0f8 25%,
+      #f8e0b0 50%,
+      #b8e8f8 75%,
+      #d8f0c8 100%
+    );
+  background-size: 200% 200%;
+  animation: foilShift 6s ease-in-out infinite;
+}
+
+.wcard--foil {
+  background: linear-gradient(160deg, #b8d0f0, #dce8f8 45%, #9ab8e0);
+}
+
+.wcard-count {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0.7;
+}
+
+.wcard-art {
+  height: 42%;
+  border-radius: 6px;
+  background: #111;
+  margin-top: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.wcard--longsword .wcard-art {
+  background: linear-gradient(180deg, #2a2a2e, #0e0e10);
+}
+.wcard--longsword .wcard-art::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 12%;
+  width: 10px;
+  height: 70%;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, #ddd, #666);
+  clip-path: polygon(50% 0, 100% 12%, 70% 100%, 30% 100%, 0 12%);
+}
+
+.wcard--double_barrel .wcard-art {
+  background: radial-gradient(circle at 40% 30%, #3a4a5a, #12161c 70%);
+}
+.wcard--double_barrel .wcard-art::before {
+  content: '';
+  position: absolute;
+  width: 68%;
+  height: 12px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #8a9aaa, #2a3038 70%, #5a3a20);
+  left: 12%;
+  top: 42%;
+  box-shadow: 0 10px 0 #4a2a14;
+}
+.wcard--double_barrel .wcard-art::after {
+  content: '';
+  position: absolute;
+  width: 22%;
+  height: 18px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #c0c8d0, #4a5058);
+  left: 28%;
+  top: 28%;
+}
+
+.wcard--relic_lantern .wcard-art {
+  background: radial-gradient(circle at 50% 40%, #5a2a8a, #120818 70%);
+}
+.wcard--relic_lantern .wcard-art::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 28%;
+  width: 36px;
+  height: 48px;
+  transform: translateX(-50%);
+  border-radius: 6px 6px 10px 10px;
+  background: linear-gradient(180deg, #e8c878, #6a3a10);
+  box-shadow: 0 0 16px rgba(200, 140, 40, 0.7);
+}
+
+.wcard-name {
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.wcard-tags {
+  font-size: 9px;
+  line-height: 1.25;
+  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.wcard-rarity {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #5a3a10;
+}
+
+.wcard--holofoil .wcard-rarity,
+.wcard--foil .wcard-rarity {
+  color: #2a2040;
+}
+
+.wcard-stats {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.wcard-stats--sub {
+  opacity: 0.75;
+  font-weight: 500;
+}
+
+#weapon-hint {
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: 13px;
+  color: #d4b56a;
+  min-height: 1.2em;
+  text-align: center;
+}
+
+#weapon-confirm {
+  appearance: none;
+  border: 1px solid #d4b56a;
+  background: linear-gradient(180deg, #5a1e1e, #2a0c0c);
+  color: #f2e6c8;
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: 15px;
+  letter-spacing: 0.12em;
+  padding: 12px 28px;
+  border-radius: 4px;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+#weapon-confirm:hover,
+#weapon-confirm:focus-visible {
+  filter: brightness(1.12);
+}
+
+#weapon-confirm:active {
+  transform: translateY(1px);
+}
+
+.loadout-keys {
+  font-size: 11px;
+  color: rgba(232, 224, 208, 0.55);
+}
+
+@keyframes foilShift {
+  0%,
+  100% {
+    background-position: 0% 40%;
+  }
+  50% {
+    background-position: 100% 60%;
+  }
+}
+
+@media (max-width: 820px), (orientation: landscape) and (max-height: 480px) {
+  #weapon-select {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    padding-top: calc(12px + var(--safe-top));
+    gap: 8px;
+  }
+
+  .loadout-brand {
+    text-align: center;
+    max-width: none;
+  }
+
+  .loadout-coins {
+    justify-content: center;
+    margin-top: 10px;
+  }
+
+  .loadout-title {
+    font-size: clamp(28px, 5vw, 40px);
+  }
+
+  #weapon-fan {
+    min-height: min(48vh, 340px);
+  }
+
+  .wcard {
+    width: clamp(120px, 28vw, 170px);
+    height: clamp(210px, 44vh, 300px);
+    margin: 0 -14px;
+  }
+}

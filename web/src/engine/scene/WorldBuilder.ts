@@ -19,6 +19,8 @@ const MODEL_URL: Record<string, string> = {
   rock: `${BASE}models/rock.glb`,
   crystal: `${BASE}models/crystal.glb`,
   weapon: `${BASE}models/weapon.glb`,
+  abbey: `${BASE}models/abbey.glb`,
+  mushroom: `${BASE}models/mushroom.glb`,
   skeleton: `${BASE}models/skeleton.glb`,
   skeleton_reaper: `${BASE}models/skeleton_reaper.glb`,
   skeleton_knight: `${BASE}models/skeleton_knight.glb`,
@@ -51,6 +53,7 @@ export class WorldBuilder {
   readonly obstacles: { x: number; z: number; r: number }[] = [];
   private readonly loader = new GLTFLoader();
   private readonly cache = new Map<string, THREE.Object3D>();
+  private readonly animCache = new Map<string, THREE.AnimationClip[]>();
   private readonly groundMat: THREE.MeshStandardMaterial;
 
   constructor() {
@@ -58,16 +61,33 @@ export class WorldBuilder {
   }
 
   async loadTemplate(kind: string): Promise<THREE.Object3D | null> {
+    const packed = await this.loadGltf(kind);
+    return packed?.scene ?? null;
+  }
+
+  async loadGltf(
+    kind: string,
+  ): Promise<{ scene: THREE.Object3D; clips: THREE.AnimationClip[] } | null> {
     const url = MODEL_URL[kind];
     if (!url) return null;
-    if (this.cache.has(kind)) return this.cache.get(kind)!.clone(true);
+    if (this.cache.has(kind)) {
+      return {
+        scene: this.cache.get(kind)!.clone(true),
+        clips: this.animCache.get(kind) ?? [],
+      };
+    }
     try {
       const gltf = await this.loader.loadAsync(url);
       boostEmissive(gltf.scene);
       this.cache.set(kind, gltf.scene);
-      return gltf.scene.clone(true);
+      this.animCache.set(kind, gltf.animations ?? []);
+      return {
+        scene: gltf.scene.clone(true),
+        clips: gltf.animations ?? [],
+      };
     } catch {
-      return this.fallbackProp(kind);
+      const fallback = this.fallbackProp(kind);
+      return fallback ? { scene: fallback, clips: [] } : null;
     }
   }
 
@@ -167,8 +187,14 @@ export class WorldBuilder {
       this.root.add(light);
       vfx.registerBrazier(new THREE.Vector3(x, 0, z), light);
       this.obstacles.push({ x, z, r: 0.55 });
-    } else if (prop.kind === 'gate' || prop.kind === 'wall' || prop.kind.startsWith('tree') || prop.kind === 'gallows') {
-      this.obstacles.push({ x, z, r: prop.kind.startsWith('tree') ? 0.6 : 1.2 });
+    } else if (
+      prop.kind === 'gate' ||
+      prop.kind === 'abbey' ||
+      prop.kind === 'wall' ||
+      prop.kind.startsWith('tree') ||
+      prop.kind === 'gallows'
+    ) {
+      this.obstacles.push({ x, z, r: prop.kind.startsWith('tree') ? 0.6 : prop.kind === 'abbey' ? 4.5 : 1.2 });
     } else if (prop.kind.startsWith('grave') || prop.kind === 'rock') {
       this.obstacles.push({ x, z, r: 0.45 });
     }

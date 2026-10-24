@@ -1,0 +1,101 @@
+{
+  "url": "http://127.0.0.1:5188",
+  "mode": "mobile",
+  "state": "active-play",
+  "requestedState": "active-play",
+  "appliedState": "active-play",
+  "runId": "pass-vfx-2",
+  "seed": 42,
+  "screenshotPath": "artifacts/pass-vfx-2/mobile-active-play.png",
+  "gpu": {
+    "renderer": "ANGLE (Intel Inc., Intel Iris Pro OpenGL Engine, OpenGL 4.1)",
+    "vendor": "Google Inc. (Intel Inc.)",
+    "softwareRendered": false
+  },
+  "result": {
+    "ok": true,
+    "reason": "nonblank",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 664
+    },
+    "drawingBuffer": {
+      "width": 682,
+      "height": 1162
+    },
+    "alphaPixels": 4111,
+    "variance": 247,
+    "colorBuckets": 201,
+    "metrics": {
+      "colorBuckets": 313,
+      "colorEntropyBits": 5.27,
+      "edgeDensity": 0.201,
+      "luminance": {
+        "mean": 63.1,
+        "p5": 24.5,
+        "p95": 150.3,
+        "contrast": 125.8
+      },
+      "dominantColorShare": 0.232,
+      "nonBackgroundShare": 0.768
+    },
+    "renderBudget": {
+      "tier": "mobile",
+      "note": "starting-point budget; adjust per game and document overrides",
+      "rows": [
+        {
+          "metric": "calls",
+          "actual": 1,
+          "limit": 150,
+          "ok": true
+        },
+        {
+          "metric": "triangles",
+          "actual": 1,
+          "limit": 300000,
+          "ok": true
+        },
+        {
+          "metric": "geometries",
+          "actual": 114,
+          "limit": 200,
+          "ok": true
+        },
+        {
+          "metric": "textures",
+          "actual": 27,
+          "limit": 40,
+          "ok": true
+        }
+      ],
+      "withinBudget": true
+    },
+    "diagnostics": {
+      "renderer": {
+        "calls": 1,
+        "triangles": 1,
+        "textures": 27,
+        "geometries": 114
+      },
+      "frame": 18,
+      "phase": "fighting",
+      "enemies": 4,
+      "pickups": 2,
+      "player": {
+        "position": {
+          "x": 0,
+          "y": 1.6006655077620204,
+          "z": 4.5
+        },
+        "health": 100,
+        "speed": 0
+      }
+    }
+  },
+  "consoleErrors": [],
+  "pageErrors": [],
+  "consoleErrorCount": 0,
+  "pageErrorCount": 0
+}

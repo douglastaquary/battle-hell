@@ -9,6 +9,8 @@ export type HudSnapshot = {
   armor: number;
   shells: number;
   maxShells: number;
+  ammoLabel?: string;
+  weaponLabel?: string;
   phase: string;
   multiplier: number;
   level: number;
@@ -33,7 +35,13 @@ export class Hud {
     this.setText('#hud-hp', `${Math.round(s.hp)} / ${s.maxHp} HP`);
     const hpFill = document.querySelector<HTMLElement>('#hud-hp-fill');
     if (hpFill) hpFill.style.height = `${Math.max(0, Math.min(100, (s.hp / s.maxHp) * 100))}%`;
-    this.setText('#hud-shells', `${s.shells} / ${s.maxShells}`);
+    if (s.maxShells > 0) {
+      this.setText('#hud-shells', `${s.shells} / ${s.maxShells}`);
+    } else {
+      this.setText('#hud-shells', '∞');
+    }
+    this.setText('#hud-ammo-label', s.ammoLabel ?? 'SHELLS');
+    this.setText('#hud-weapon', s.weaponLabel ?? '');
     this.setText('#hud-mult', `x${s.multiplier.toFixed(1)}`);
     this.setText('#hud-level', `Level ${s.level}`);
     this.setText('#hud-xp', `${s.xp} / ${s.xpMax} XP`);

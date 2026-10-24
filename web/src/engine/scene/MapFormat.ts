@@ -62,6 +62,7 @@ export const DEFAULT_WEATHER: WeatherSettings = {
 export function createAbbeyClearingMap(seed = 413287): BattleHellMap {
   const props: MapProp[] = [
     { id: 'gate-1', kind: 'gate', position: [0, 0, -18], scale: 1.1 },
+    { id: 'abbey-1', kind: 'abbey', position: [0, 0, -23.5], scale: 1.05 },
     { id: 'wall-l', kind: 'wall', position: [-8, 0, -16], rotationY: 0.2 },
     { id: 'wall-r', kind: 'wall', position: [8, 0, -16], rotationY: -0.2 },
   ];
@@ -108,11 +109,31 @@ export function createAbbeyClearingMap(seed = 413287): BattleHellMap {
     });
   }
 
+  const mushrooms: Vec3[] = [
+    [-3.2, 0, -4.5],
+    [2.6, 0, -7.2],
+    [-5.8, 0, 1.2],
+    [4.0, 0, 0.5],
+    [-1.5, 0, -11.5],
+    [5.2, 0, -13],
+  ];
+  mushrooms.forEach((p, i) => {
+    props.push({
+      id: `mushroom-${i}`,
+      kind: 'mushroom',
+      position: p,
+      scale: 0.85 + (i % 3) * 0.15,
+      rotationY: i * 0.9,
+    });
+  });
+
   props.push(
     { id: 'gallows-1', kind: 'gallows', position: [-11, 0, -2], rotationY: 0.4 },
     { id: 'rock-1', kind: 'rock', position: [3, 0, 7], scale: 1.2 },
     { id: 'rock-2', kind: 'rock', position: [-4, 0, 8], scale: 0.9 },
+    { id: 'rock-3', kind: 'rock', position: [-7, 0, -8], scale: 1.1 },
     { id: 'crystal-1', kind: 'crystal', position: [2.2, 0, -1.5], scale: 0.7 },
+    { id: 'crystal-2', kind: 'crystal', position: [-2.8, 0, -6], scale: 0.55 },
   );
 
   return {

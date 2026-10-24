@@ -6,6 +6,7 @@ let stoneTex: THREE.CanvasTexture | null = null;
 let bannerTex: THREE.CanvasTexture | null = null;
 let dirtTex: THREE.CanvasTexture | null = null;
 let gunMarkTex: THREE.CanvasTexture | null = null;
+let stainedGlassTex: THREE.CanvasTexture | null = null;
 
 function canvasTex(size: number, draw: (ctx: CanvasRenderingContext2D, s: number) => void): THREE.CanvasTexture {
   const c = document.createElement('canvas');
@@ -97,6 +98,49 @@ export function getGunMarkTexture(): THREE.CanvasTexture {
   return gunMarkTex;
 }
 
+/** Vitral rosácea procedural (abbey). */
+export function getStainedGlassTexture(): THREE.CanvasTexture {
+  if (stainedGlassTex) return stainedGlassTex;
+  stainedGlassTex = canvasTex(256, (ctx, s) => {
+    const cx = s / 2;
+    const cy = s / 2;
+    ctx.fillStyle = '#1a0c08';
+    ctx.fillRect(0, 0, s, s);
+    const colors = ['#c04028', '#2848a8', '#c8a028', '#8030a0', '#208060', '#d06030'];
+    for (let ring = 0; ring < 4; ring++) {
+      const r0 = 18 + ring * 28;
+      const r1 = r0 + 26;
+      const n = 8 + ring * 2;
+      for (let i = 0; i < n; i++) {
+        const a0 = (i / n) * Math.PI * 2;
+        const a1 = ((i + 1) / n) * Math.PI * 2;
+        ctx.beginPath();
+        ctx.moveTo(cx + Math.cos(a0) * r0, cy + Math.sin(a0) * r0);
+        ctx.arc(cx, cy, r1, a0, a1);
+        ctx.lineTo(cx + Math.cos(a1) * r0, cy + Math.sin(a1) * r0);
+        ctx.closePath();
+        ctx.fillStyle = colors[(i + ring) % colors.length];
+        ctx.fill();
+      }
+    }
+    ctx.strokeStyle = '#1a1008';
+    ctx.lineWidth = 3;
+    for (let i = 0; i < 12; i++) {
+      const a = (i / 12) * Math.PI * 2;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + Math.cos(a) * 120, cy + Math.sin(a) * 120);
+      ctx.stroke();
+    }
+    ctx.beginPath();
+    ctx.arc(cx, cy, 16, 0, Math.PI * 2);
+    ctx.fillStyle = '#e8c070';
+    ctx.fill();
+  });
+  stainedGlassTex.wrapS = stainedGlassTex.wrapT = THREE.ClampToEdgeWrapping;
+  return stainedGlassTex;
+}
+
 export const Materials = {
   stone(): THREE.MeshStandardMaterial {
     return new THREE.MeshStandardMaterial({
@@ -143,6 +187,14 @@ export const Materials = {
       roughness: 0.62,
       metalness: 0.55,
       envMapIntensity: 0.45,
+    });
+  },
+  gunWood(): THREE.MeshStandardMaterial {
+    return new THREE.MeshStandardMaterial({
+      color: 0x4a2814,
+      roughness: 0.48,
+      metalness: 0.05,
+      envMapIntensity: 0.35,
     });
   },
 };

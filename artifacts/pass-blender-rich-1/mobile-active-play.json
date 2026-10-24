@@ -1,0 +1,101 @@
+{
+  "url": "http://127.0.0.1:5188",
+  "mode": "mobile",
+  "state": "active-play",
+  "requestedState": "active-play",
+  "appliedState": "active-play",
+  "runId": "pass-blender-rich-1",
+  "seed": 42,
+  "screenshotPath": "artifacts/pass-blender-rich-1/mobile-active-play.png",
+  "gpu": {
+    "renderer": "ANGLE (Intel Inc., Intel Iris Pro OpenGL Engine, OpenGL 4.1)",
+    "vendor": "Google Inc. (Intel Inc.)",
+    "softwareRendered": false
+  },
+  "result": {
+    "ok": true,
+    "reason": "nonblank",
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 664
+    },
+    "drawingBuffer": {
+      "width": 682,
+      "height": 1162
+    },
+    "alphaPixels": 4111,
+    "variance": 244,
+    "colorBuckets": 215,
+    "metrics": {
+      "colorBuckets": 301,
+      "colorEntropyBits": 5.68,
+      "edgeDensity": 0.213,
+      "luminance": {
+        "mean": 100.9,
+        "p5": 35.2,
+        "p95": 207.5,
+        "contrast": 172.3
+      },
+      "dominantColorShare": 0.149,
+      "nonBackgroundShare": 0.851
+    },
+    "renderBudget": {
+      "tier": "mobile",
+      "note": "starting-point budget; adjust per game and document overrides",
+      "rows": [
+        {
+          "metric": "calls",
+          "actual": 1,
+          "limit": 150,
+          "ok": true
+        },
+        {
+          "metric": "triangles",
+          "actual": 1,
+          "limit": 300000,
+          "ok": true
+        },
+        {
+          "metric": "geometries",
+          "actual": 169,
+          "limit": 200,
+          "ok": true
+        },
+        {
+          "metric": "textures",
+          "actual": 28,
+          "limit": 40,
+          "ok": true
+        }
+      ],
+      "withinBudget": true
+    },
+    "diagnostics": {
+      "renderer": {
+        "calls": 1,
+        "triangles": 1,
+        "textures": 28,
+        "geometries": 169
+      },
+      "frame": 20,
+      "phase": "fighting",
+      "enemies": 4,
+      "pickups": 2,
+      "player": {
+        "position": {
+          "x": 0,
+          "y": 1.6013280647153811,
+          "z": 4.5
+        },
+        "health": 100,
+        "speed": 0
+      }
+    }
+  },
+  "consoleErrors": [],
+  "pageErrors": [],
+  "consoleErrorCount": 0,
+  "pageErrorCount": 0
+}

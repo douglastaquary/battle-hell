@@ -30,6 +30,9 @@ export type Enemy = {
   attackCd: number;
   hitFlash: number;
   alive: boolean;
+  mixer?: THREE.AnimationMixer;
+  actions?: Partial<Record<'idle' | 'walk' | 'attack' | 'hit' | 'death', THREE.AnimationAction>>;
+  currentClip?: string;
 };
 
 export class EnemySystem {
@@ -44,11 +47,20 @@ export class EnemySystem {
   async spawn(
     kind: EnemyKind,
     position: THREE.Vector3,
-    load: (k: string) => Promise<THREE.Object3D | null>,
+    load: (
+      k: string,
+    ) => Promise<THREE.Object3D | null | { scene: THREE.Object3D; clips: THREE.AnimationClip[] }>,
   ): Promise<Enemy> {
     const def = DEFS[kind];
-    let model = await load(kind);
-    if (!model) {
+    const loaded = await load(kind);
+    let model: THREE.Object3D;
+    let clips: THREE.AnimationClip[] = [];
+    if (loaded && 'scene' in loaded && loaded.scene) {
+      model = loaded.scene;
+      clips = loaded.clips ?? [];
+    } else if (loaded && (loaded as THREE.Object3D).isObject3D) {
+      model = loaded as THREE.Object3D;
+    } else {
       model = new THREE.Mesh(new THREE.CapsuleGeometry(0.35, 1.1, 4, 8), this.fallbackMat.clone());
       model.position.y = 1;
     }
@@ -69,8 +81,40 @@ export class EnemySystem {
       hitFlash: 0,
       alive: true,
     };
+    if (clips.length) {
+      const mixer = new THREE.AnimationMixer(model);
+      const actions: Enemy['actions'] = {};
+      const pick = (names: string[]) =>
+        clips.find((c) => names.some((n) => c.name.toLowerCase().includes(n)));
+      const map: Array<[keyof NonNullable<Enemy['actions']>, string[]]> = [
+        ['idle', ['idle']],
+        ['walk', ['walk']],
+        ['attack', ['attack']],
+        ['hit', ['hit']],
+        ['death', ['death']],
+      ];
+      for (const [key, names] of map) {
+        const clip = pick(names);
+        if (clip) actions[key] = mixer.clipAction(clip);
+      }
+      enemy.mixer = mixer;
+      enemy.actions = actions;
+      this.playClip(enemy, 'idle');
+    }
     this.enemies.push(enemy);
     return enemy;
+  }
+
+  private playClip(enemy: Enemy, name: keyof NonNullable<Enemy['actions']>): void {
+    if (!enemy.actions || enemy.currentClip === name) return;
+    const next = enemy.actions[name];
+    if (!next) return;
+    const prev = enemy.currentClip ? enemy.actions[enemy.currentClip as keyof typeof enemy.actions] : undefined;
+    if (prev && prev !== next) prev.fadeOut(0.15);
+    next.reset().setEffectiveTimeScale(1).setEffectiveWeight(1).fadeIn(0.15).play();
+    if (name === 'attack' || name === 'hit') next.setLoop(THREE.LoopOnce, 1);
+    else next.setLoop(THREE.LoopRepeat, Infinity);
+    enemy.currentClip = name;
   }
 
   update(
@@ -81,16 +125,20 @@ export class EnemySystem {
     onAttack: (dmg: number) => void,
   ): void {
     for (const e of this.enemies) {
-      if (!e.alive) continue;
       e.hitFlash = Math.max(0, e.hitFlash - dt);
       this.applyHitFlashVisual(e);
+      e.mixer?.update(dt);
+      if (e.state === 'dead' || !e.alive) {
+        this.playClip(e, 'death');
+        continue;
+      }
       if (e.state === 'rising') {
         e.rise += dt;
         e.root.position.y = THREE.MathUtils.lerp(-1.2, 0, Math.min(1, e.rise / 0.9));
         if (e.rise >= 0.9) e.state = 'chase';
+        this.playClip(e, 'idle');
         continue;
       }
-      if (e.state === 'dead') continue;
 
       const pos = e.root.position;
       const toPlayer = new THREE.Vector3().subVectors(playerPos, pos);
@@ -102,6 +150,7 @@ export class EnemySystem {
 
       if (dist < 1.35) {
         e.state = 'attack';
+        this.playClip(e, 'attack');
         e.attackCd -= dt;
         if (e.attackCd <= 0) {
           e.attackCd = 1.1;
@@ -109,12 +158,13 @@ export class EnemySystem {
         }
       } else {
         e.state = 'chase';
+        this.playClip(e, 'walk');
         const dir = toPlayer.normalize();
-        let speed = e.def.speed;
         if (e.def.kind === 'skeleton_reaper') {
           const side = new THREE.Vector3(-dir.z, 0, dir.x).multiplyScalar(Math.sin(performance.now() * 0.004));
           dir.add(side).normalize();
         }
+        const speed = e.def.speed;
         const nx = pos.x + dir.x * speed * dt;
         const nz = pos.z + dir.z * speed * dt;
         if (!world.collides(nx, pos.z, 0.4, arenaRadius)) pos.x = nx;
@@ -136,6 +186,8 @@ export class EnemySystem {
     pellets: number,
     spread: number,
     rng: () => number,
+    range = 28,
+    damageMul = 1,
   ): { enemy: Enemy; point: THREE.Vector3; damage: number }[] {
     const hits: { enemy: Enemy; point: THREE.Vector3; damage: number }[] = [];
     for (let p = 0; p < pellets; p++) {
@@ -145,16 +197,16 @@ export class EnemySystem {
       d.z += (rng() - 0.5) * spread;
       d.normalize();
       let best: Enemy | null = null;
-      let bestT = 28;
+      let bestT = range;
       let bestPoint = new THREE.Vector3();
       for (const e of this.enemies) {
         if (!e.alive || e.state === 'rising') continue;
         const center = e.root.position.clone();
-        center.y += e.def.kind === 'skull_horned' ? 0.3 : 1.0;
-        const radius = 0.55;
+        center.y += e.def.kind === 'skull_horned' ? 0.35 : 1.05;
+        const radius = e.def.kind === 'skull_horned' ? 0.7 : 0.85;
         const to = center.clone().sub(origin);
         const t = to.dot(d);
-        if (t < 0.3 || t > bestT) continue;
+        if (t < 0.2 || t > bestT) continue;
         const closest = origin.clone().addScaledVector(d, t);
         if (closest.distanceTo(center) <= radius) {
           best = e;
@@ -164,9 +216,9 @@ export class EnemySystem {
       }
       if (best) {
         const head = bestPoint.y > best.root.position.y + 1.45;
-        let dmg = head ? 14 : 8;
+        let dmg = (head ? 16 : 10) * damageMul;
         if (best.def.armored) dmg *= 0.7;
-        const falloff = bestT > 6 ? 0.65 : 1;
+        const falloff = bestT > 8 ? 0.7 : bestT > 4 ? 0.85 : 1;
         dmg *= falloff;
         hits.push({ enemy: best, point: bestPoint, damage: dmg });
       }
@@ -175,15 +227,18 @@ export class EnemySystem {
   }
 
   applyDamage(enemy: Enemy, amount: number): boolean {
-    if (!enemy.alive) return false;
+    if (!enemy.alive || amount <= 0) return false;
     enemy.hp -= amount;
-    enemy.hitFlash = 0.18;
+    enemy.hitFlash = 0.22;
     this.applyHitFlashVisual(enemy);
     if (enemy.hp <= 0) {
+      enemy.hp = 0;
       enemy.alive = false;
       enemy.state = 'dead';
+      this.playClip(enemy, 'death');
       return true;
     }
+    this.playClip(enemy, 'hit');
     return false;
   }
 

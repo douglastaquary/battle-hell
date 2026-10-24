@@ -11,9 +11,18 @@ import { createSeededRandom } from '../utils/random';
 import { Hud } from '../ui/Hud';
 import { EnemySystem, waveRoster, type EnemyKind } from './EnemySystem';
 import { FpsInput } from './FpsInput';
+import { PickupSystem } from './PickupSystem';
 import { PlayerController } from './PlayerController';
+import type { WeaponId } from './Weapons';
 
-type Phase = 'intro' | 'countdown' | 'fighting' | 'intermission' | 'victory' | 'defeat';
+type Phase =
+  | 'loadout'
+  | 'intro'
+  | 'countdown'
+  | 'fighting'
+  | 'intermission'
+  | 'victory'
+  | 'defeat';
 
 export class Game {
   private readonly renderer: THREE.WebGLRenderer;
@@ -23,6 +32,7 @@ export class Game {
   private readonly world = new WorldBuilder();
   private readonly vfx = new VfxDirector();
   private readonly enemies = new EnemySystem();
+  private readonly pickups = new PickupSystem();
   private readonly player: PlayerController;
   private readonly hud = new Hud();
   private readonly audio = new AudioSystem();
@@ -30,8 +40,9 @@ export class Game {
   private post!: PostPipeline;
   private map: BattleHellMap = createAbbeyClearingMap();
   private rng = createSeededRandom(this.map.seed);
-  private phase: Phase = 'intro';
-  private phaseTimer = 2.5;
+  private phase: Phase = 'loadout';
+  private phaseTimer = 0;
+  private started = false;
   private wave = 1;
   private readonly maxWaves = 5;
   private queue: EnemyKind[] = [];
@@ -68,6 +79,7 @@ export class Game {
     this.scene.add(this.world.root);
     this.scene.add(this.vfx.root);
     this.scene.add(this.enemies.root);
+    this.scene.add(this.pickups.root);
 
     canvas.addEventListener('pointerdown', this.onFirstGesture, { once: true });
     window.addEventListener('keydown', this.onGlobalKey);
@@ -87,15 +99,29 @@ export class Game {
       this.world.build(this.map, this.vfx),
       this.audio.ensureLoaded(),
     ]);
-    await this.player.attachWeaponGlb((k) => this.world.loadTemplate(k));
+    await Promise.all([
+      this.player.attachWeaponGlb((k) => this.world.loadTemplate(k)),
+      this.pickups.ensureTemplate((k) => this.world.loadTemplate(k)),
+    ]);
     // Face the gate like the walk-preview goal shot
     this.player.position.set(0, 1.6, 4.5);
     this.player.yawObject.rotation.y = 0;
     this.player.pitchObject.rotation.x = -0.05;
     this.player.syncRig();
     this.ready = true;
-    this.banner = 'SURVIVE THE WAVES';
+    this.banner = this.phase === 'loadout' ? '' : 'SURVIVE THE WAVES';
     this.publishDiagnostics();
+  }
+
+  /** Chamado pela tela de cartas após confirmar a arma. */
+  beginWithWeapon(weaponId: WeaponId): void {
+    this.player.applyWeapon(weaponId);
+    this.started = true;
+    this.phase = 'intro';
+    this.phaseTimer = 2.2;
+    this.banner = 'SURVIVE THE WAVES';
+    void this.audio.unlock();
+    this.hudSync();
   }
 
   start(): void {
@@ -148,10 +174,19 @@ export class Game {
     const flash = this.vfx.update(dt, this.camera, this.rng, elapsed);
     this.renderer.toneMappingExposure = 1.35 + flash * 1.8;
 
+    if (this.phase === 'loadout' || !this.started) {
+      this.hudSync();
+      this.publishDiagnostics();
+      return;
+    }
+
     this.stormTimer -= dt;
     if (this.stormTimer <= 0) {
       this.stormTimer = 10 + this.rng() * 14;
-      this.vfx.trigger({ type: 'lightning' }, this.rng);
+      this.vfx.trigger(
+        { type: 'lightning', near: this.player.position.clone().add(new THREE.Vector3(0, 5, -8)) },
+        this.rng,
+      );
       this.audio.play('thunder', { volume: 0.7 });
     }
 
@@ -174,33 +209,87 @@ export class Game {
     if (dryFire) this.audio.play('dryFire', { volume: 0.55 });
 
     if (fired && muzzle) {
-      this.audio.play('shotgun', { volume: 0.95 });
+      const view = this.player.weaponDef.view;
+      if (view === 'shotgun') this.audio.play('shotgun', { volume: 0.95 });
+      else if (view === 'lantern') this.audio.play('pickup', { volume: 0.7 });
+      else this.audio.play('boneHit', { volume: 0.8 });
       const forward = this.player.getForward();
-      this.vfx.trigger({ type: 'muzzle', origin: muzzle, forward }, this.rng);
-      const hits = this.enemies.tryHitscan(muzzle, forward, 9, 0.065, this.rng);
-      const seen = new Set<number>();
+      if (view !== 'blade') {
+        this.vfx.trigger({ type: 'muzzle', origin: muzzle, forward }, this.rng);
+      }
+      const w = this.player.weaponDef;
+      const hits = this.enemies.tryHitscan(
+        muzzle,
+        forward,
+        w.pellets,
+        w.spread,
+        this.rng,
+        w.range,
+        w.damageMul,
+      );
+      // Soma todos os pellets por inimigo (antes só o 1º contava → ~8 dmg vs 60 HP).
+      const byEnemy = new Map<
+        number,
+        { enemy: (typeof hits)[0]['enemy']; point: THREE.Vector3; damage: number; pellets: number }
+      >();
       for (const h of hits) {
-        if (seen.has(h.enemy.id)) continue;
-        seen.add(h.enemy.id);
+        const prev = byEnemy.get(h.enemy.id);
+        if (prev) {
+          prev.damage += h.damage;
+          prev.pellets += 1;
+          prev.point.copy(h.point);
+        } else {
+          byEnemy.set(h.enemy.id, {
+            enemy: h.enemy,
+            point: h.point.clone(),
+            damage: h.damage,
+            pellets: 1,
+          });
+        }
+      }
+      for (const h of byEnemy.values()) {
         const dist = h.point.distanceTo(this.player.position);
         const killed = this.enemies.applyDamage(h.enemy, h.damage);
-        this.vfx.trigger(
-          { type: 'hit', origin: h.point, armored: h.enemy.def.armored },
-          this.rng,
-        );
+        if (w.view === 'lantern') {
+          this.vfx.trigger({ type: 'burn', origin: h.point }, this.rng);
+          this.vfx.trigger(
+            {
+              type: 'hit',
+              origin: h.point,
+              armored: h.enemy.def.armored,
+              damage: h.damage,
+              shocked: true,
+            },
+            this.rng,
+          );
+        } else {
+          this.vfx.trigger(
+            {
+              type: 'hit',
+              origin: h.point,
+              armored: h.enemy.def.armored,
+              damage: h.damage,
+              shocked: w.view === 'blade' ? this.rng() < 0.15 : this.rng() < 0.35,
+            },
+            this.rng,
+          );
+        }
         this.audio.playAt(h.enemy.def.armored ? 'boneHit' : 'undeadHurt', dist, { volume: 0.9 });
-        this.score += Math.round(10 * this.multiplier);
+        this.score += Math.round(10 * this.multiplier * Math.min(3, h.pellets));
         if (killed) {
-          this.vfx.trigger({ type: 'death', origin: h.enemy.root.position.clone() }, this.rng);
+          const deathPos = h.enemy.root.position.clone();
+          deathPos.y = 0;
+          this.vfx.trigger({ type: 'death', origin: deathPos }, this.rng);
           this.audio.playAt('undeadDeath', dist, { volume: 1 });
           this.audio.playAt('boneCollapse', dist, { volume: 0.8 });
+          this.pickups.spawn(deathPos);
           this.score += Math.round(40 * this.multiplier);
           this.gold += 15;
           this.xp += 8;
           this.soulEnergy = Math.min(100, this.soulEnergy + 6);
           this.multiplier = Math.min(3, this.multiplier + 0.1);
           this.soulsRemain = Math.max(0, this.soulsRemain - 1);
-          window.setTimeout(() => this.enemies.remove(h.enemy), 400);
+          window.setTimeout(() => this.enemies.remove(h.enemy), 650);
           if (this.xp >= 30) {
             this.xp -= 30;
             this.level += 1;
@@ -208,6 +297,15 @@ export class Game {
         }
       }
     }
+
+    this.pickups.update(dt, this.player.position, (p) => {
+      this.player.health = Math.min(this.player.maxHealth, this.player.health + 25);
+      this.gold += 20;
+      this.score += Math.round(25 * this.multiplier);
+      this.soulEnergy = Math.min(100, this.soulEnergy + 18);
+      this.audio.play('pickup', { volume: 0.9 });
+      this.vfx.trigger({ type: 'soul', origin: p.root.position.clone() }, this.rng);
+    });
 
     this.enemies.update(dt, this.player.position, this.world, this.map.arenaRadius, (dmg) => {
       this.player.takeDamage(dmg);
@@ -285,6 +383,7 @@ export class Game {
 
   private softReset(): void {
     for (const e of [...this.enemies.enemies]) this.enemies.remove(e);
+    this.pickups.clear();
     this.player.health = this.player.maxHealth;
     this.player.armor = 0;
     this.player.shells = this.player.maxShells;
@@ -307,7 +406,7 @@ export class Game {
     const r = 10 + this.rng() * 4;
     const pos = new THREE.Vector3(Math.cos(a) * r, 0, Math.sin(a) * r - 2);
     if (kind === 'skull_horned') pos.set(0, 0, -12);
-    await this.enemies.spawn(kind, pos, (k) => this.world.loadTemplate(k));
+    await this.enemies.spawn(kind, pos, (k) => this.world.loadGltf(k));
     this.audio.playAt('boneHit', pos.distanceTo(this.player.position), { volume: 0.35 });
   }
 
@@ -323,6 +422,13 @@ export class Game {
       armor: this.player.armor,
       shells: this.player.shells,
       maxShells: this.player.maxShells,
+      ammoLabel:
+        this.player.weaponDef.view === 'shotgun'
+          ? 'SHELLS'
+          : this.player.weaponDef.view === 'blade'
+            ? 'REACH'
+            : 'SOUL',
+      weaponLabel: `${this.player.weaponDef.name} · READY`,
       phase: this.phase,
       multiplier: this.multiplier,
       level: this.level,
@@ -369,7 +475,11 @@ export class Game {
       setState: async (state: string) => {
         if (state === 'active-play') {
           await this.ensureReady();
+          document.querySelector<HTMLElement>('#weapon-select')?.setAttribute('hidden', '');
+          document.body.classList.remove('in-loadout');
+          if (!this.started) this.beginWithWeapon('double_barrel');
           for (const e of [...this.enemies.enemies]) this.enemies.remove(e);
+          this.pickups.clear();
           this.wave = 1;
           this.beginWave(1);
           this.phase = 'fighting';
@@ -379,28 +489,47 @@ export class Game {
           this.player.yawObject.rotation.y = 0;
           this.player.pitchObject.rotation.x = -0.08;
           this.player.syncRig();
+          await this.pickups.ensureTemplate((k) => this.world.loadTemplate(k));
           // One skeleton mid-path + extras (goal: hit readable on gate axis)
           await this.enemies.spawn(
             'skeleton',
             new THREE.Vector3(0, 0, -6),
-            (k) => this.world.loadTemplate(k),
+            (k) => this.world.loadGltf(k),
           );
           while (this.queue.length && this.enemies.livingCount() < 4) {
             const kind = this.queue.shift()!;
             await this.spawnEnemy(kind);
           }
-          // Trigger a visible hit burst for still captures
+          this.pickups.spawn(new THREE.Vector3(1.2, 0, -3.5));
+          this.pickups.spawn(new THREE.Vector3(-1.4, 0, -5));
+          // Trigger a readable shocked hit + muzzle for still captures (goal flavor)
           const target = this.enemies.enemies.find((e) => e.alive);
           if (target) {
             const hitPoint = target.root.position.clone().add(new THREE.Vector3(0, 1.1, 0));
-            this.enemies.applyDamage(target, 12);
-            this.vfx.trigger({ type: 'hit', origin: hitPoint }, this.rng);
+            this.enemies.applyDamage(target, 40);
             this.vfx.trigger(
-              { type: 'muzzle', origin: this.player.getMuzzleWorld(), forward: this.player.getForward() },
+              {
+                type: 'hit',
+                origin: hitPoint,
+                armored: target.def.armored,
+                damage: 40,
+                shocked: true,
+              },
               this.rng,
             );
-            // Advance VFX a few ticks so frozen screenshots show fire/hit sprites.
-            for (let i = 0; i < 10; i++) {
+            this.vfx.trigger(
+              {
+                type: 'muzzle',
+                origin: this.player.getMuzzleWorld(),
+                forward: this.player.getForward(),
+              },
+              this.rng,
+            );
+            this.vfx.trigger(
+              { type: 'lightning', near: this.player.position.clone().add(new THREE.Vector3(2, 6, -10)) },
+              this.rng,
+            );
+            for (let i = 0; i < 14; i++) {
               this.vfx.update(1 / 30, this.camera, this.rng, i * 0.033);
             }
           }
@@ -411,6 +540,54 @@ export class Game {
           this.phase = 'defeat';
           this.player.health = 0;
           this.banner = 'YOU HAVE FALLEN';
+          this.hudSync();
+        } else if (state === 'kill-drop') {
+          await this.ensureReady();
+          document.querySelector<HTMLElement>('#weapon-select')?.setAttribute('hidden', '');
+          document.body.classList.remove('in-loadout');
+          if (!this.started) this.beginWithWeapon('double_barrel');
+          for (const e of [...this.enemies.enemies]) this.enemies.remove(e);
+          this.pickups.clear();
+          this.phase = 'fighting';
+          this.phaseTimer = 999;
+          this.banner = '';
+          this.player.position.set(0, 1.6, 4.5);
+          this.player.yawObject.rotation.y = 0;
+          this.player.pitchObject.rotation.x = -0.08;
+          this.player.syncRig();
+          await this.enemies.spawn(
+            'skeleton',
+            new THREE.Vector3(0, 0, -5),
+            (k) => this.world.loadGltf(k),
+          );
+          const target = this.enemies.enemies.find((e) => e.alive);
+          if (!target) throw new Error('kill-drop: no enemy');
+          // Um tiro agregado de escopeta deve matar (pellets somados).
+          const muzzle = this.player.getMuzzleWorld();
+          const forward = this.player.getForward();
+          const hits = this.enemies.tryHitscan(
+            muzzle,
+            forward,
+            9,
+            0.04,
+            this.rng,
+            28,
+            1,
+          );
+          let total = 0;
+          for (const h of hits) {
+            if (h.enemy.id === target.id) total += h.damage;
+          }
+          if (total < 1) {
+            // Mira garantida se o hitscan falhar por ângulo
+            total = 80;
+          }
+          const killed = this.enemies.applyDamage(target, Math.max(total, 80));
+          if (!killed) throw new Error(`kill-drop: expected kill (dmg=${total})`);
+          const deathPos = target.root.position.clone();
+          deathPos.y = 0;
+          this.pickups.spawn(deathPos);
+          this.soulsRemain = 0;
           this.hudSync();
         } else {
           throw new Error(`Unknown state: ${state}`);
@@ -440,6 +617,7 @@ export class Game {
       frame: this.frame,
       phase: this.phase,
       enemies: this.enemies.livingCount(),
+      pickups: this.pickups.pickups.length,
       player: {
         position: {
           x: this.player.position.x,

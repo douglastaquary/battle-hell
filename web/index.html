@@ -18,9 +18,26 @@
       rel="stylesheet"
     />
   </head>
-  <body>
+  <body class="in-loadout">
     <main id="app">
       <canvas id="game-canvas" aria-label="Battle Hell arena"></canvas>
+
+      <section id="weapon-select" aria-label="Escolher arma" aria-hidden="false">
+        <div class="loadout-brand">
+          <div class="loadout-skull" aria-hidden="true"></div>
+          <h1 class="loadout-title">BATTLE<br />HELL</h1>
+          <p class="loadout-tag">CHOOSE YOUR HAND.</p>
+          <div class="loadout-coins" aria-hidden="true">
+            <span></span><span></span><span></span><span></span>
+          </div>
+        </div>
+        <div class="loadout-panel">
+          <div id="weapon-fan" role="listbox" aria-label="Armas"></div>
+          <div id="weapon-hint"></div>
+          <button type="button" id="weapon-confirm">ENTER THE ABYSS</button>
+          <div class="loadout-keys">← → select · Enter confirm</div>
+        </div>
+      </section>
 
       <section id="bh-hud" aria-live="polite">
         <div class="hud-top">
@@ -44,7 +61,7 @@
               <span id="hud-hp">100 / 100 HP</span>
             </div>
             <div class="hud-ammo">
-              <span>SHELLS</span>
+              <span id="hud-ammo-label">SHELLS</span>
               <strong id="hud-shells">2 / 2</strong>
               <div id="hud-armor"></div>
             </div>
@@ -61,7 +78,7 @@
           <div class="hud-soul">
             <div class="soul-label">Soul Energy <span id="hud-soul-energy">40%</span></div>
             <div class="soul-track"><div id="hud-soul-bar"></div></div>
-            <div class="weapon-chip">DOUBLE BARREL · READY</div>
+            <div class="weapon-chip" id="hud-weapon">ABYSS LONGWATCH · READY</div>
           </div>
         </div>
       </section>

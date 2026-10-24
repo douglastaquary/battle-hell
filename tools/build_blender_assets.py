@@ -174,6 +174,38 @@ SURF = {
                        0.0, 0.08, (0.15, 1.0, 0.35), 4.0),
     "bone": Surface("bone", lambda p: mix((0.45, 0.42, 0.34), (0.70, 0.66, 0.55), fbm(p, 12.0, 41)), 0.0, 0.6),
     "rope": Surface("rope", lambda p: mix((0.18, 0.14, 0.08), (0.32, 0.25, 0.14), noise(p, 40.0, 2)), 0.0, 0.95),
+    "glass": Surface(
+        "stained glass",
+        lambda p: mix((0.55, 0.12, 0.08), (0.15, 0.25, 0.7), fbm(p, 14.0, 77)),
+        0.05,
+        0.2,
+        (0.7, 0.35, 0.2),
+        5.0,
+        smooth=True,
+    ),
+    "glass_blue": Surface(
+        "cold glass",
+        lambda p: mix((0.08, 0.18, 0.55), (0.35, 0.55, 0.9), fbm(p, 10.0, 78)),
+        0.05,
+        0.18,
+        (0.25, 0.45, 0.95),
+        4.5,
+        smooth=True,
+    ),
+    "mushroom": Surface(
+        "glow shroom",
+        lambda p: mix((0.25, 0.08, 0.45), (0.7, 0.25, 0.9), fbm(p, 8.0, 88)),
+        0.0,
+        0.55,
+        (0.55, 0.15, 0.85),
+        3.5,
+    ),
+    "moss": Surface(
+        "damp moss",
+        lambda p: mix((0.05, 0.12, 0.04), (0.12, 0.22, 0.08), fbm(p, 6.0, 90)),
+        0.0,
+        0.95,
+    ),
 }
 
 
@@ -415,43 +447,149 @@ def export(name):
     print("exported", name)
 
 
-# ---------------------------------------------------------------- weapon
+# ---------------------------------------------------------------- weapon (Abyss Longwatch — long rifle FPS, rich detail)
 def build_weapon():
+    """Original Battle Hell long rifle: walnut stock, worn steel, brass fittings, scope."""
     reset()
     mb = MeshBuilder()
-    rot_y = math.pi / 2 * -1  # cylinders built on +Z, rotate to +Y
-    for x in (-0.027, 0.027):
-        mb.add(*tube(0.026, 0.0175, 0.66, 24), "steel", T(x, -0.04, 0.0, rx=rot_y))
-        for y in (0.06, 0.30, 0.58):
-            mb.add(*cylinder(0.0295, 0.0295, 0.022, 24), "brass", T(x, y, 0.0, rx=rot_y))
-    mb.add(*box(0.012, 0.66, 0.012), "steel", T(0, 0.29, 0.03))  # top rib
-    mb.add(*box(0.010, 0.012, 0.016), "brass", T(0, 0.60, 0.042))  # bead sight
-    mb.add(*box(0.07, 0.26, 0.045), "gunwood", T(0, 0.17, -0.040))  # forend
-    mb.add(*box(0.088, 0.17, 0.085), "steel", T(0, -0.11, -0.012))  # receiver
-    for i in range(6):  # engraved brass inlay
-        mb.add(*box(0.090, 0.012, 0.010), "brass", T(0, -0.18 + i * 0.026, 0.02 + (i % 2) * 0.01))
-    mb.add(*box(0.012, 0.03, 0.03), "steel", T(0, -0.045, 0.045, rx=0.4))  # top lever
-    mb.add(*cylinder(0.008, 0.008, 0.02, 10), "steel", T(-0.03, -0.175, 0.04, ry=math.pi / 2))  # hammer pin
-    mb.add(*box(0.008, 0.012, 0.04), "steel", T(0, -0.10, -0.075, rx=0.25))  # trigger
-    mb.add(*box(0.006, 0.09, 0.006), "steel", T(0, -0.10, -0.098))  # trigger guard
-    mb.add(*box(0.006, 0.006, 0.045), "steel", T(0, -0.055, -0.078))
-    mb.add(*box(0.074, 0.17, 0.07), "gunwood", T(0, -0.27, -0.045, rx=0.18))  # wrist
-    mb.add(*box(0.07, 0.07, 0.13), "gunwood", T(0, -0.31, -0.10, rx=-0.35))  # pistol grip
-    mb.add(*box(0.082, 0.30, 0.11), "gunwood", T(0, -0.50, -0.095, rx=0.12))  # stock
-    mb.add(*box(0.086, 0.02, 0.125), "leather", T(0, -0.655, -0.115, rx=0.12))  # butt pad
-    # Gloved hands and sleeves; sleeves extend toward the camera.
-    left = T(0.0, 0.18, -0.078)
-    mb.add(*box(0.10, 0.10, 0.045), "leather", left)
+    rot_y = -math.pi / 2  # cylinders on +Z → +Y barrel axis
+
+    # —— Long barrel + underlug ——
+    mb.add(*tube(0.022, 0.015, 1.05, 20), "steel", T(0, 0.42, 0.02, rx=rot_y))
+    mb.add(*tube(0.018, 0.012, 0.95, 16), "steel", T(0, 0.38, -0.02, rx=rot_y))  # under-barrel
+    for y in (0.05, 0.28, 0.52, 0.78, 1.0):
+        mb.add(*cylinder(0.026, 0.026, 0.018, 16), "brass", T(0, y, 0.02, rx=rot_y))
+        mb.add(*cylinder(0.022, 0.022, 0.014, 12), "iron", T(0, y, -0.02, rx=rot_y))
+    mb.add(*box(0.01, 1.02, 0.01), "steel", T(0, 0.45, 0.048))  # top rib
+    mb.add(*box(0.014, 0.02, 0.022), "brass", T(0, 0.95, 0.055))  # front sight
+    mb.add(*cylinder(0.03, 0.026, 0.04, 14), "brass", T(0, 0.98, 0.02, rx=rot_y))  # muzzle ring
+    mb.add(*cylinder(0.012, 0.012, 0.05, 8), "steel", T(0, 1.02, 0.02, rx=rot_y))  # flash tip
+
+    # —— Wooden forend with vents ——
+    mb.add(*box(0.078, 0.42, 0.055), "gunwood", T(0, 0.22, -0.045))
+    for i in range(7):
+        mb.add(*box(0.062, 0.018, 0.012), "iron", T(0, 0.06 + i * 0.055, -0.072))
+    mb.add(*box(0.082, 0.04, 0.02), "brass", T(0, 0.42, -0.04))  # barrel band
+    mb.add(*box(0.082, 0.04, 0.02), "brass", T(0, 0.08, -0.04))
+
+    # —— Receiver / action (mechanical richness) ——
+    mb.add(*box(0.092, 0.28, 0.095), "steel", T(0, -0.12, -0.01))
+    mb.add(*box(0.096, 0.22, 0.04), "steel", T(0, -0.1, 0.05))  # top cover
+    for i in range(8):  # engraved brass lines
+        mb.add(*box(0.098, 0.008, 0.006), "brass", T(0, -0.22 + i * 0.03, 0.028 + (i % 2) * 0.008))
+    # Bolt handle
+    mb.add(*cylinder(0.01, 0.01, 0.07, 10), "steel", T(0.055, -0.05, 0.04, ry=math.pi / 2))
+    mb.add(*sphere(0.018, 8, 6), "brass", T(0.095, -0.05, 0.04))
+    # Ejection port recess
+    mb.add(*box(0.04, 0.08, 0.02), "iron", T(0.04, -0.08, 0.06))
+    # Magazine well + mag
+    mb.add(*box(0.055, 0.08, 0.1), "iron", T(0, -0.14, -0.09))
+    mb.add(*box(0.048, 0.06, 0.12), "steel", T(0, -0.14, -0.14))
     for i in range(4):
-        mb.add(*sphere(0.016, 8, 5, squash=(1.0, 1.0, 1.3)), "leather", left @ T(0.045, -0.035 + i * 0.023, 0.03))
-    mb.add(*cylinder(0.048, 0.05, 0.36, 12), "leather", left @ T(-0.06, -0.02, -0.02, rx=1.75, rz=0.5))
-    right = T(0.0, -0.31, -0.11, rx=-0.35)
-    mb.add(*box(0.095, 0.09, 0.08), "leather", right)
+        mb.add(*box(0.05, 0.008, 0.01), "brass", T(0, -0.14, -0.1 - i * 0.025))
+    # Trigger group
+    mb.add(*box(0.01, 0.014, 0.045), "steel", T(0, -0.08, -0.08, rx=0.2))
+    mb.add(*box(0.008, 0.1, 0.008), "steel", T(0, -0.08, -0.105))
+    mb.add(*box(0.008, 0.008, 0.05), "steel", T(0, -0.03, -0.085))
+    mb.add(*box(0.07, 0.04, 0.02), "gunwood", T(0, -0.2, -0.055))  # wrist wood
+
+    # —— Scope (blocky gothic optic like reference) ——
+    mb.add(*box(0.055, 0.22, 0.055), "steel", T(0, -0.02, 0.12))
+    mb.add(*box(0.06, 0.04, 0.06), "brass", T(0, 0.08, 0.12))  # front bell
+    mb.add(*box(0.06, 0.04, 0.06), "brass", T(0, -0.12, 0.12))  # rear bell
+    mb.add(*box(0.04, 0.03, 0.02), "glass_blue", T(0, 0.09, 0.12))
+    mb.add(*box(0.04, 0.03, 0.02), "glass", T(0, -0.13, 0.12))
+    mb.add(*box(0.025, 0.025, 0.025), "brass", T(0, -0.02, 0.155))  # turret
+    mb.add(*box(0.02, 0.08, 0.015), "iron", T(0, -0.02, 0.085))  # mount
+    mb.add(*box(0.02, 0.08, 0.015), "iron", T(0, 0.05, 0.085))
+
+    # —— Stock (walnut, cheek rest, butt) ——
+    mb.add(*box(0.078, 0.18, 0.075), "gunwood", T(0, -0.32, -0.04, rx=0.12))
+    mb.add(*box(0.072, 0.08, 0.14), "gunwood", T(0, -0.36, -0.11, rx=-0.4))  # pistol grip
+    mb.add(*box(0.088, 0.38, 0.12), "gunwood", T(0, -0.58, -0.1, rx=0.1))  # buttstock
+    mb.add(*box(0.07, 0.16, 0.04), "gunwood", T(0, -0.5, -0.02, rx=0.08))  # cheek piece
+    mb.add(*box(0.092, 0.025, 0.13), "leather", T(0, -0.78, -0.12, rx=0.1))  # butt pad
+    mb.add(*box(0.04, 0.06, 0.02), "brass", T(0, -0.7, -0.04))  # sling stud
+    # Wood grain panels / screws
+    for i in range(5):
+        mb.add(*cylinder(0.006, 0.006, 0.01, 8), "brass", T(0.04, -0.45 - i * 0.06, -0.04, ry=math.pi / 2))
+        mb.add(*cylinder(0.006, 0.006, 0.01, 8), "brass", T(-0.04, -0.45 - i * 0.06, -0.04, ry=math.pi / 2))
+
+    # —— Gloved hands ——
+    left = T(0.02, 0.15, -0.09)
+    mb.add(*box(0.1, 0.11, 0.05), "leather", left)
+    for i in range(4):
+        mb.add(*sphere(0.015, 8, 5, squash=(1.0, 1.0, 1.25)), "leather", left @ T(0.05, -0.04 + i * 0.022, 0.03))
+    mb.add(*cylinder(0.045, 0.05, 0.32, 12), "leather", left @ T(-0.05, -0.02, -0.02, rx=1.7, rz=0.45))
+    right = T(0.0, -0.36, -0.12, rx=-0.4)
+    mb.add(*box(0.09, 0.09, 0.08), "leather", right)
     for i in range(3):
-        mb.add(*sphere(0.016, 8, 5, squash=(1.3, 1.0, 1.0)), "leather", right @ T(-0.045, 0.0, 0.02 - i * 0.024))
-    mb.add(*cylinder(0.05, 0.055, 0.35, 12), "leather", right @ T(0.05, -0.04, -0.03, rx=1.9, rz=-0.6))
-    mb.build("weapon")
+        mb.add(*sphere(0.015, 8, 5, squash=(1.25, 1.0, 1.0)), "leather", right @ T(-0.04, 0.0, 0.02 - i * 0.022))
+    mb.add(*cylinder(0.048, 0.052, 0.3, 12), "leather", right @ T(0.05, -0.03, -0.02, rx=1.85, rz=-0.55))
+
+    mb.build("weapon", ao=True, grime=True)
     export("weapon")
+
+
+def build_abbey():
+    """Gothic abbey facade with rose window + lit lancets (behind gate)."""
+    reset()
+    mb = MeshBuilder()
+    rng = random.Random(41)
+    # Main body
+    mb.add(*box(14.0, 4.5, 9.5), "stone", T(0, -2.2, 4.5))
+    # Buttresses
+    for x in (-6.2, -3.5, 3.5, 6.2):
+        mb.add(*box(1.1, 1.4, 8.5), "stone", T(x, -1.5, 4.0))
+        mb.add(*box(1.3, 1.5, 0.6), "stone", T(x, -1.5, 8.3))
+    # Rose window frame + stained panes
+    mb.add(*cylinder(2.2, 2.2, 0.35, 24), "stone", T(0, 0.3, 6.2, rx=math.pi / 2))
+    mb.add(*cylinder(1.85, 1.85, 0.12, 24), "iron", T(0, 0.45, 6.2, rx=math.pi / 2))
+    for i in range(12):
+        a = i * math.pi / 6
+        mb.add(*box(0.12, 0.08, 1.7), "iron", T(math.cos(a) * 0.85, 0.5, 6.2 + math.sin(a) * 0.85, ry=a))
+    for i in range(8):
+        a = i * math.pi / 4 + 0.2
+        r = 0.55 + (i % 2) * 0.35
+        pane = "glass" if i % 2 == 0 else "glass_blue"
+        mb.add(*box(0.45, 0.08, 0.45), pane, T(math.cos(a) * r, 0.55, 6.2 + math.sin(a) * r, ry=a))
+    mb.add(*box(0.5, 0.1, 0.5), "glass", T(0, 0.55, 6.2))
+    # Lancets
+    for x in (-4.5, -2.2, 2.2, 4.5):
+        mb.add(*box(0.9, 0.25, 2.4), "stone", T(x, 0.4, 3.4))
+        mb.add(*box(0.65, 0.12, 2.0), "glass_blue" if x > 0 else "glass", T(x, 0.5, 3.4))
+        mb.add(*box(0.08, 0.15, 1.9), "iron", T(x, 0.48, 3.4))
+        mb.add(*box(0.55, 0.15, 0.08), "iron", T(x, 0.48, 3.9))
+        mb.add(*box(0.55, 0.15, 0.08), "iron", T(x, 0.48, 2.9))
+    # Roof / cornice
+    mb.add(*box(14.5, 5.0, 0.5), "stone", T(0, -2.2, 9.2))
+    for i in range(9):
+        mb.add(*box(0.35, 0.35, 0.7), "stone", T(-6 + i * 1.5, -0.2, 9.5))
+    # Moss patches
+    for _ in range(18):
+        mb.add(
+            *box(rng.uniform(0.4, 1.1), 0.15, rng.uniform(0.2, 0.5)),
+            "moss",
+            T(rng.uniform(-6, 6), 0.1, rng.uniform(1.5, 8)),
+        )
+    mb.build("abbey", ao=True, grime=True)
+    export("abbey")
+
+
+def build_mushroom():
+    reset()
+    mb = MeshBuilder()
+    rng = random.Random(19)
+    for i in range(5):
+        x, y = rng.uniform(-0.25, 0.25), rng.uniform(-0.25, 0.25)
+        h = rng.uniform(0.12, 0.28)
+        stem = "bone"
+        mb.add(*cylinder(0.025, 0.035, h, 8), stem, T(x, y, h / 2))
+        cap_r = rng.uniform(0.08, 0.16)
+        mb.add(*sphere(cap_r, 10, 6, 0.15, i + 3, (1.2, 1.2, 0.55)), "mushroom", T(x, y, h + cap_r * 0.35))
+    mb.add(*sphere(0.12, 8, 5, 0.2, 2, (1.4, 1.4, 0.4)), "moss", T(0, 0, 0.04))
+    mb.build("mushroom")
+    export("mushroom")
 
 
 # ---------------------------------------------------------------- arena kit
@@ -462,49 +600,74 @@ def build_gate():
     for x in (-2.4, 2.4):
         z = 0.0
         while z < 4.6:
-            h = rng.uniform(0.45, 0.7)
-            mb.add(*box(1.0 + rng.uniform(-0.06, 0.06), 1.0 + rng.uniform(-0.06, 0.06), h - 0.03), "stone",
-                   T(x + rng.uniform(-0.03, 0.03), 0, z + h / 2, rz=rng.uniform(-0.05, 0.05)))
+            h = rng.uniform(0.4, 0.65)
+            mb.add(
+                *box(1.05 + rng.uniform(-0.08, 0.08), 1.15 + rng.uniform(-0.05, 0.08), h - 0.02),
+                "stone",
+                T(x + rng.uniform(-0.04, 0.04), rng.uniform(-0.05, 0.05), z + h / 2, rz=rng.uniform(-0.06, 0.06)),
+            )
+            if rng.random() < 0.35:
+                mb.add(*box(0.25, 0.15, 0.08), "moss", T(x + rng.uniform(-0.3, 0.3), 0.5, z + h * 0.5))
             z += h
-        mb.add(*box(1.25, 1.25, 0.35), "stone", T(x, 0, 0.17))
-    # Pointed arch: two arcs meeting at the apex, with one fallen keystone gap.
+        mb.add(*box(1.35, 1.35, 0.4), "stone", T(x, 0, 0.2))
+        mb.add(*box(1.1, 1.1, 0.25), "iron", T(x, 0, 4.55))  # capital
+        # Torch sconces
+        mb.add(*box(0.12, 0.18, 0.35), "iron", T(x + (-0.7 if x < 0 else 0.7), -0.55, 2.4))
+        mb.add(*cylinder(0.08, 0.1, 0.12, 8), "brass", T(x + (-0.7 if x < 0 else 0.7), -0.55, 2.65))
+    # Pointed arch
     for side in (-1, 1):
         cx = -side * 1.0
-        for i in range(9):
-            a = math.radians(5 + i * 9.5)
-            px = cx + side * 3.4 * math.cos(a)
-            pz = 4.6 + 3.4 * math.sin(a) * 0.95
-            if side == 1 and i == 8:
+        for i in range(10):
+            a = math.radians(4 + i * 9)
+            px = cx + side * 3.45 * math.cos(a)
+            pz = 4.55 + 3.45 * math.sin(a) * 0.95
+            if side == 1 and i == 9:
                 continue
-            mb.add(*box(0.55, 0.9, 0.5), "stone", T(px, 0, pz, ry=side * (a - math.pi / 2) * -1))
-    mb.add(*box(0.6, 0.85, 0.5), "stone", T(1.3, -1.2, 0.25, rx=0.4, rz=0.7))  # fallen block
-    for i in range(4):  # steps
-        mb.add(*box(7.0 - i * 0.6, 0.6, 0.18), "stone", T(0, -1.6 + i * 0.5, 0.09 + i * 0.18))
-    for x in (-2.4, 2.4):  # hanging banners
-        v, f = grid(0.75, 2.0, 16, 40)
-        v = [(px, 0.02 * math.sin(pz * 5 + px * 3), pz - 0.25 * smooth(0.4, 0.0, pz) * (1 - abs(px) / 0.38))
-             for px, py, pz in v]
-        mb.add(v, f, "cloth", T(x, -0.52, 2.1))
-        mb.add(*box(0.9, 0.05, 0.05), "iron", T(x, -0.52, 4.12))
-    mb.build("gate")
+            mb.add(*box(0.58, 0.95, 0.52), "stone", T(px, 0, pz, ry=side * (a - math.pi / 2) * -1))
+    mb.add(*box(0.65, 0.9, 0.55), "stone", T(1.35, -1.25, 0.28, rx=0.4, rz=0.7))
+    # Inner arch trim + keystone
+    mb.add(*box(0.7, 0.7, 0.55), "brass", T(0, 0.15, 7.4))
+    for i in range(5):
+        mb.add(*box(7.2 - i * 0.55, 0.65, 0.2), "stone", T(0, -1.55 + i * 0.48, 0.1 + i * 0.19))
+    # Portcullis iron
+    for i in range(-3, 4):
+        mb.add(*box(0.07, 0.07, 3.4), "iron", T(i * 0.42, 0.35, 1.7))
+    for i in range(5):
+        mb.add(*box(2.9, 0.07, 0.07), "iron", T(0, 0.35, 0.55 + i * 0.65))
+    for x in (-2.4, 2.4):
+        v, f = grid(0.8, 2.15, 16, 42)
+        v = [
+            (px, 0.025 * math.sin(pz * 5 + px * 3), pz - 0.28 * smooth(0.4, 0.0, pz) * (1 - abs(px) / 0.4))
+            for px, py, pz in v
+        ]
+        mb.add(v, f, "cloth", T(x, -0.55, 2.15))
+        mb.add(*box(0.95, 0.06, 0.06), "iron", T(x, -0.55, 4.2))
+        mb.add(*box(0.95, 0.06, 0.06), "brass", T(x, -0.55, 4.28))
+    mb.build("gate", ao=True, grime=True)
     export("gate")
 
 
 def build_brazier():
     reset()
     mb = MeshBuilder()
-    mb.add(*cylinder(0.32, 0.28, 0.12, 8), "stone", T())
-    mb.add(*cylinder(0.18, 0.15, 0.9, 8), "stone", T(z=0.12))
-    mb.add(*cylinder(0.2, 0.26, 0.1, 8), "stone", T(z=1.0))
-    mb.add(*cylinder(0.16, 0.42, 0.24, 12), "iron", T(z=1.1))
-    for i in range(6):
-        a = i * math.pi / 3
-        mb.add(*box(0.03, 0.03, 0.22), "iron", T(math.cos(a) * 0.43, math.sin(a) * 0.43, 1.42, rx=math.sin(a) * 0.3,
-                                                 ry=-math.cos(a) * 0.3))
+    mb.add(*cylinder(0.36, 0.3, 0.14, 10), "stone", T())
+    mb.add(*cylinder(0.2, 0.16, 1.0, 10), "stone", T(z=0.14))
+    mb.add(*box(0.12, 0.12, 0.08), "brass", T(0.12, 0, 0.55))
+    mb.add(*box(0.12, 0.12, 0.08), "brass", T(-0.12, 0, 0.55))
+    mb.add(*cylinder(0.22, 0.28, 0.12, 10), "stone", T(z=1.1))
+    mb.add(*cylinder(0.18, 0.48, 0.28, 14), "iron", T(z=1.2))
+    for i in range(8):
+        a = i * math.pi / 4
+        mb.add(
+            *box(0.035, 0.035, 0.28),
+            "iron",
+            T(math.cos(a) * 0.46, math.sin(a) * 0.46, 1.55, rx=math.sin(a) * 0.35, ry=-math.cos(a) * 0.35),
+        )
+        mb.add(*box(0.04, 0.04, 0.04), "brass", T(math.cos(a) * 0.46, math.sin(a) * 0.46, 1.35))
     rng = random.Random(3)
-    for i in range(9):
-        mb.add(*sphere(0.08, 6, 4, 0.25, i), "ember", T(rng.uniform(-0.2, 0.2), rng.uniform(-0.2, 0.2), 1.3))
-    mb.build("brazier")
+    for i in range(14):
+        mb.add(*sphere(0.07, 6, 4, 0.25, i), "ember", T(rng.uniform(-0.22, 0.22), rng.uniform(-0.22, 0.22), 1.35))
+    mb.build("brazier", ao=True)
     export("brazier")
 
 
@@ -545,18 +708,23 @@ def build_tree(name, seed, height):
 def build_graves():
     reset()
     mb = MeshBuilder()
-    mb.add(*box(0.6, 0.16, 0.75), "stone", T(z=0.375))
-    v, f = cylinder(0.3, 0.3, 0.16, 12)
-    mb.add(v, f, "stone", T(0, 0.08, 0.75, rx=math.pi / 2))
-    mb.add(*box(0.7, 0.3, 0.12), "stone", T(z=0.06))
-    mb.build("grave_a")
+    # Headstone with bevelled top + inscription recess
+    mb.add(*box(0.68, 0.18, 0.85), "stone", T(z=0.42))
+    mb.add(*box(0.55, 0.12, 0.12), "stone", T(z=0.9))
+    v, f = cylinder(0.32, 0.32, 0.16, 14)
+    mb.add(v, f, "stone", T(0, 0.08, 0.88, rx=math.pi / 2))
+    mb.add(*box(0.35, 0.04, 0.4), "iron", T(0, -0.06, 0.45))  # plaque
+    mb.add(*box(0.78, 0.35, 0.14), "stone", T(z=0.07))
+    mb.add(*box(0.25, 0.2, 0.08), "moss", T(0.2, 0.05, 0.2))
+    mb.build("grave_a", ao=True, grime=True)
     export("grave_a")
     reset()
     mb = MeshBuilder()
-    mb.add(*box(0.14, 0.12, 1.25), "stone", T(z=0.62, ry=0.12))
-    mb.add(*box(0.62, 0.12, 0.14), "stone", T(0.11, 0, 0.95, ry=0.12))
-    mb.add(*box(0.5, 0.4, 0.15), "stone", T(z=0.07))
-    mb.build("grave_b")
+    mb.add(*box(0.16, 0.14, 1.35), "stone", T(z=0.67, ry=0.1))
+    mb.add(*box(0.7, 0.14, 0.16), "stone", T(0.12, 0, 1.05, ry=0.1))
+    mb.add(*box(0.55, 0.45, 0.16), "stone", T(z=0.08))
+    mb.add(*box(0.2, 0.15, 0.06), "moss", T(-0.15, 0.1, 0.5))
+    mb.build("grave_b", ao=True)
     export("grave_b")
 
 
@@ -580,7 +748,9 @@ def build_rocks():
     reset()
     mb = MeshBuilder()
     mb.add(*sphere(0.8, 9, 6, 0.28, 5, (1.3, 1.0, 0.7)), "stone", T(z=0.25))
-    mb.build("rock")
+    mb.add(*sphere(0.35, 7, 5, 0.2, 8, (1.1, 0.9, 0.7)), "stone", T(0.5, 0.2, 0.15))
+    mb.add(*box(0.4, 0.3, 0.1), "moss", T(0.1, 0, 0.35))
+    mb.build("rock", ao=True)
     export("rock")
 
 
@@ -1346,7 +1516,8 @@ if __name__ == "__main__":
         args = sys.argv[sys.argv.index("--") + 1:]
         only = set(args) if args else None
     builders = [
-        ("weapon", build_weapon), ("gate", build_gate), ("brazier", build_brazier),
+        ("weapon", build_weapon), ("gate", build_gate), ("abbey", build_abbey), ("brazier", build_brazier),
+        ("mushroom", build_mushroom),
         ("tree_a", lambda: build_tree("tree_a", 11, 5.5)), ("tree_b", lambda: build_tree("tree_b", 29, 6.5)),
         ("graves", build_graves), ("gallows", build_gallows), ("rock", build_rocks), ("crystal", build_crystal),
         ("wall", build_wall), ("skeleton", build_skeleton), ("skeleton_reaper", build_reaper),

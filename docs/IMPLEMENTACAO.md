@@ -18,6 +18,9 @@ Referência: https://x.com/dimillian/status/2107161600335507611 e vídeos de "Da
 - **Deploy:** workflow `.github/workflows/pages.yml`, base `/battle-hell/`.
 - **Direção visual:** capturas anexadas pelo usuário (HUD gótico, braseiros, fog/lua, editor Abbey Clearing) — referência de nível, não cópia de ativos.
 - **2026-10-24 (obrigatório):** walk-preview Abbey Clearing (`artifacts/visual-goal/`) define a meta de cenário (portão+faixas), arma FPS, fogo/fumaça, tiro e esqueleto atingido; engine otimiza VFX 3D + sprites 2D + texturas compartilhadas (`MaterialKit`, atlas dual-layer).
+- **2026-10-24 (loadout):** tela inicial de cartas no estilo mesa (template do anexo Dark Veil, marca **Battle Hell**): `WeaponSelect` + `Weapons.ts` (LONGSWORD / DOUBLE BARREL / SOUL LANTERN) → `Game.beginWithWeapon` inicia intro/ondas; combate usa `weaponDef` (pellets, spread, range, damageMul).
+- **2026-10-24 (VFX):** rework do motor — `ProceduralSpriteEngine` (16 flavors incl. shock/mist/impact) sobre `ParticleSystem3D` + `CombatFloaters` (dano/SHOCKED); evidência `artifacts/pass-vfx-2/`.
+- **2026-10-24 (Blender rich):** arma **Abyss Longwatch** (rifle detalhado em Blender), façade **abbey** com vitrais, mushrooms, graves/braseiros densos; dressing com poças roxas + rose window; evidência `artifacts/pass-blender-rich-1/`.
 
 ## Referências visuais
 
